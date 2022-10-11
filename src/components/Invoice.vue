@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'invoices',
@@ -14,6 +15,8 @@
                     organisationCode: '',
                     subOrganisationCode: '',
                     customerCode: '',
+                    organisationName: '',
+                    subOrganisationName: ''
                 },
 
                 customer: {
@@ -22,18 +25,64 @@
                 },
 
                 invoice: {
+                    id: '',
                     invoiceCode: '',
+                    invoiceDate: ''
                 },
 
                 items: {
                     amount: '',
                 },
 
+                role: '',
+
+                roles: [],
+                workflow: [],
+                entryValue: '',
+                comment: '',
+
+                customerDetails: {
+                    id: '',
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                comment: '',
+                entryValue: '',
+
             }
             
         },
 
         async mounted(){
+            this.role = localStorage.getItem('role');
+
+            const resul = await axios.get('api/Users/profile',{
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            this.customerDetails = resul.data.result;
+
+            const role = await axios.get('api/roles/allroles', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.roles = role.data.result;
+
+            const resultss = await axios.get('api/WorkFlowItem/Items/'+this.customerDetails.organizationCode, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.workflow = resultss.data.result;
 
 
             await axios.get('api/Invoice/details/'+this.$route.params.invoiceCode, {
@@ -83,6 +132,49 @@
             },
         },
 
+        methods: {
+
+            async invoiceRebate(){
+
+                const toast = useToast()
+
+                if (!this.comment) {
+                    toast.error("comment required.");
+                }
+                if (!this.entryValue) {
+                    toast.error("Entry Value required.");
+                }else{
+
+                    const response = await axios.put('api/Invoice/addrebate', {
+                        initiator: 0,
+                        workFlowEntryItemID: 0,
+                        reference: this.invoice.invoiceCode,
+                        comment: this.comment,
+                        entryValue: this.entryValue,
+                        
+                        
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },);
+
+                    if(response) {
+
+                        toast.success(response.data.message);
+
+                        this.initiator = "";
+                        this.workFlowEntryItemID = "";
+                        this.comment = "";
+                        this.entryValue = "";
+
+                    }else{
+                        toast.error("Incorrect Parameter");
+                    }
+                }
+            }
+        }
+
 
         
     }
@@ -107,12 +199,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Invoice</h4>
+                              <h4 class="mb-0">Bill <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Invoice</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Bill</li>
                                   </ol>
                               </div>
 
@@ -130,9 +222,9 @@
                                 <div class="brand-section" >
                                     <div class="row">
                                         <div class="col-6">
-                                            <h1 class="text-dark">{{allinvoice.organisationCode}}</h1>
+                                            <h1 class="text-dark">{{allinvoice.organisationName}}</h1>
                                             
-                                            <h3 class="text-dark">{{allinvoice.subOrganisation1}}</h3>
+                                            <h3 class="text-dark">{{allinvoice.subOrganisationName}}</h3>
                                         </div>
                                         <div class="col-6">
                                             <div class="company-details">
@@ -175,7 +267,7 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in items">
-                                                <td>{{item.itemCode}}</td>
+                                                <td>{{item.itemName}}</td>
                                                 <td>{{item.price}}</td>
                                                 <td>{{item.quantity}}</td>
                                                 <td>{{item.amount}}</td>
@@ -196,10 +288,56 @@
                                     </table>
                                     <br>
                                     <h3 class="heading">Payment Status: {{invoice.paymentStatus}}</h3>
-                                    <!-- <h3 class="heading">Payment Mode: Cash on Delivery</h3> -->
                                 </div>
 
                             </div>
+                        </div>
+                        <!-- <router-link to="/invoice-rebate"><button class="btn btn-info mt-3">Apply for Rebate</button></router-link> -->
+
+                        <button class="btn btn-info mt-3" data-toggle="modal" data-target="#bs-example-modal-lg" v-if="role === 'billing-oficer' && invoice.paymentStatus == 'UNPAID'">Apply Rebate</button>
+
+                        <div class="modal fade" id="bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    
+                                    <div class="modal-header">
+                                        <h5 id="myLargeModalLabel" class="modal-title mt-0">Apply Rebate</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form @submit.prevent="invoiceRebate">
+                                            <div class="row">
+
+                                                <div class="col-md-12 mb-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Entry Value</label>
+                                                        <input type="text" class="form-control" v-model="entryValue">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 mb-4">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Comment</label>
+                                                        <textarea v-model="comment" class="form-control" id="" cols="30" rows="10"></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col">
+                                                    <button type="submit" class="btn btn-success float-left">Apply Rebate</button>
+
+                                                    <button type="button" class="btn btn-danger float-right" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div><hr>
+                                        </form>
+                                
+                                        
+                                    </div>
+                                    
+                                </div><!-- /.modal-content -->
+                                
+                            </div><!-- /.modal-dialog -->
                         </div>
                     </div> <!-- end col -->
                 </div> <!-- end row -->

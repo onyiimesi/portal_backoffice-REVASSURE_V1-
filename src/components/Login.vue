@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios'
+import { useToast } from "vue-toastification";
 
 export default {
     name: "Login",
@@ -15,48 +16,82 @@ export default {
         async handleSubmit() {
             this.errors = [];
 
+            const toast = useToast()
+
             if (!this.email) {
-                this.errors.push("Email required.");
+                // this.errors.push("Email required.");
+                toast.error("Email required.");
             }
 
             if (!this.password) {
-                this.errors.push("Password required.");
+                // this.errors.push("Password required.");
+                toast.error("Password required");
+            }else{
+
+                await axios.post("api/UserAccount/authenticate", {
+                    email: this.email,
+                    password: this.password
+                }).then(response => { 
+                    if (response.data.status == 200) {
+                        // console.log(response);
+                        var usertype = response.data.result.details.user;
+                        var userrole = response.data.result.details.role;
+                        var token = response.data.result.token;
+
+                        localStorage.setItem('token', response.data.result.token);
+                        
+                        localStorage.setItem('role', response.data.result.details.role);
+
+                        localStorage.setItem('firstname', response.data.result.details.firstname);
+
+                        localStorage.setItem('lastname', response.data.result.details.lastname);
+
+                        this.$store.dispatch("settoken", token);
+                        this.$store.dispatch("setuserrole", userrole);
+                        this.$store.dispatch("setusertype", usertype);
+                        this.$store.dispatch("setIsAuth", true);
+                        
+                        this.$router.push("/dashboard");
+
+
+                    }else{
+                        toast.error("Invalid User");
+                    }
+                })
+                .catch(error => {
+                    if(error.response.data.status){
+                        // console.log("An Error Occured!");
+                    }
+                    
+                });
+
             }
 
+            // if (response.data.status == 200) {
+            //     console.log(response);
+            //     var usertype = response.data.result.details.user;
+            //     var userrole = response.data.result.details.role;
+            //     var token = response.data.result.token;
 
-
-            let response = await axios.post("api/UserAccount/authenticate", {
-                email: this.email,
-                password: this.password
-            });
-
-
-            if (response.data.status == 200) {
-                // console.log(response);
-                var usertype = response.data.result.details.user;
-                var userrole = response.data.result.details.role;
-                var token = response.data.result.token;
-
-                localStorage.setItem('token', response.data.result.token);
+            //     localStorage.setItem('token', response.data.result.token);
                 
-                localStorage.setItem('role', response.data.result.details.role);
+            //     localStorage.setItem('role', response.data.result.details.role);
 
-                localStorage.setItem('firstname', response.data.result.details.firstname);
+            //     localStorage.setItem('firstname', response.data.result.details.firstname);
 
-                localStorage.setItem('lastname', response.data.result.details.lastname);
+            //     localStorage.setItem('lastname', response.data.result.details.lastname);
 
-                this.$store.dispatch("settoken", token);
-                this.$store.dispatch("setuserrole", userrole);
-                this.$store.dispatch("setusertype", usertype);
-                this.$store.dispatch("setIsAuth", true);
+            //     this.$store.dispatch("settoken", token);
+            //     this.$store.dispatch("setuserrole", userrole);
+            //     this.$store.dispatch("setusertype", usertype);
+            //     this.$store.dispatch("setIsAuth", true);
                 
-                this.$router.push("/dashboard");
+            //     this.$router.push("/dashboard");
 
 
-            } else {
-                // alert("Invalid User");
-                this.errors.push("Invalid User");
-            }
+            // } else {
+            //     toast.error("Invalid User");
+            // }
         },
     },
 };
@@ -88,24 +123,19 @@ export default {
 
 
                                             <div class="alert alert-danger" v-if="errors.length">
-                                                <b>Please correct the following error(s):</b>
-                                                <ul>
-                                                    <li v-for="error in errors">{{ error }}</li>
-                                                </ul>
+                                                <p v-for="error in errors">{{ error}}</p>
                                             </div>
                                             <form @submit.prevent="handleSubmit">
                                                 <div class="form-group auth-form-group-custom mb-4">
                                                     <i class="ri-user-2-line auti-custom-input-icon"></i>
                                                     <label for="email">Email Address</label>
-                                                    <input type="email" v-model="email" class="form-control"
-                                                        placeholder="Enter Email Address">
+                                                    <input type="email" v-model="email" class="form-control" placeholder="Enter Email Address">
                                                 </div>
 
                                                 <div class="form-group auth-form-group-custom mb-4">
                                                     <i class="ri-lock-2-line auti-custom-input-icon"></i>
                                                     <label for="userpassword">Password</label>
-                                                    <input type="password" v-model="password" class="form-control"
-                                                        placeholder="Enter password">
+                                                    <input type="password" v-model="password" class="form-control" placeholder="Enter password">
                                                 </div>
 
                                                 <!-- <div class="custom-control custom-checkbox">

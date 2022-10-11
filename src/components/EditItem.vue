@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'edititem',
@@ -10,9 +11,24 @@
                 message: [],
 
                 allitem: [],
+                alli: [],
                 allorg: [],
                 // suborg: [],
                 tax: [],
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                itemList: [],
 
                 allitems: {
                     itemCode: '',
@@ -23,95 +39,55 @@
                     gifmisReferenceCode: '',
                     price: '',
                     taxType: '',
-                }
-                
-                
-            }
-        },
+                    itemOrgCode: '',
 
-        methods: {
-            async editItem(){
-                // console.log(this.allitems)
-                this.errors = [];
-                this.message = [];
+                    isSelfService: '',
+                    hasCustomField: '',
 
-                
-                
-                if (!this.allitems.itemCode) {
-                    this.errors.push("Item Code required.");
-                }
+                },
 
-                if (!this.allitems.itemName) {
-                    this.errors.push("Item Name required.");
-                }
+                customFields: [{
+                    itemCode: '',
+                    fieldKey: '',
+                    fieldType: '',
+                    fieldOption: '',
+                }],
 
-                if (!this.allitems.organisationCode) {
-                    this.errors.push("Organisation Code required.");
-                }
-
-                if (!this.allitems.subOrganisationCode) {
-                    this.errors.push("Sub-Organisation Code required.");
-                }
-
-                if (!this.allitems.remitaRevenueReference) {
-                    this.errors.push("Remita Revenue Code required.");
-                }
-
-                if (!this.allitems.gifmisReferenceCode) {
-                    this.errors.push("GIFMIS Ref Code required.");
-                }
-
-                if (!this.allitems.price) {
-                    this.errors.push("Price required.");
-                }
-
-                if (!this.allitems.taxType) {
-                    this.errors.push("Tax Type required.");
-                }
-                
-                const response = await axios.put('api/Organisation/edit', {
-                    itemCode: this.itemCode,
-                    itemName: this.itemName,
-                    organisationCode: this.organisationCode,
-                    subOrganisationCode: this.subOrganisationCode,
-                    remitaRevenueReference: this.remitaRevenueReference,
-                    gifmisReferenceCode: this.gifmisReferenceCode,
-                    price: this.price,
-                    taxType: this.taxType,
-                    
-                }, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
-                    }
-                },);
-                
-
-                if (response) {
-                    
-                    this.message.push(response.data.message);
-
-                }else{
-                    this.errors.push("Incorrect Parameter");
-                }
+                role: '',
 
                 
-                 
+                
             }
         },
 
         async mounted(){
+            this.role = localStorage.getItem('role');
+            const resu = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resu.data.result;
 
-            // const result = await axios.get('api/Item/details/'+this.$route.params.id);
- 
-            // this.allitems = result.data.result;
+
+            const resul = await axios.get('api/Item/details/'+this.$route.params.itemOrgCode, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.allitems = resul.data.result.itemDetails;
+            
+            this.customFields = resul.data.result.customFields;
+            
+
 
             const items = await axios.get('api/ItemHeader/items', {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
             },);
-            
             this.allitem = items.data.result;
+            
 
             const result = await axios.get('api/Organisation/organizations', {
                 headers: {
@@ -131,6 +107,49 @@
             },);
             this.tax = taxtype.data.result;
         },
+
+        methods: {
+            async editItem(){
+                // console.log(this.allitems)
+                this.errors = [];
+                this.message = [];
+                const toast = useToast()
+
+                this.itemList.push(this.customFields);
+                
+                const response = await axios.put('api/Item/edit',{
+                    itemOrgCode: this.allitems.itemOrgCode,
+                    itemName: this.allitems.itemName,
+                    remitaRevenueReference: this.allitems.remitaRevenueReference,
+                    gifmisReferenceCode: this.allitems.gifmisReferenceCode,
+                    price: this.allitems.price,
+                    taxType: this.allitems.taxType,
+
+                    customFields: this.customFields,
+
+                    isSelfService: this.allitems.isSelfService,
+                    hasCustomField: this.allitems.hasCustomField,
+                    
+                }, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                    }
+                },).then(response => { 
+                    toast.success(response.data.message);
+                    
+                    this.itemList = [];
+                })
+                .catch(error => {
+                if(error.response.data.title){
+                    toast.error("Field(s) is empty");
+                }
+                    
+                });
+                 
+            }
+        },
+
+        
     }
 </script>
 <template>
@@ -153,11 +172,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Edit Item</h4>
+                              <h4 class="mb-0">Edit Item <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Edit Item</li>
                                   </ol>
                               </div>
@@ -184,84 +203,153 @@
                                 </div>
                                 <form @submit.prevent="editItem">
                                     <div class="row">
-
-                                        <div class="col-md-12">
+                                        <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">Item Code</label>
-                                                <select v-model="allitems.itemCode" class="form-control" id="">
-                                                    <option>Choose</option>
-                                                    <option v-for="item in allitem" :value="item.itemCode">{{item.itemCode}}</option>
-                                                    
-                                                </select>
+                                                <!-- <label class="control-label">Organisation Code</label> -->
+                                                <input class="form-control" type="hidden" v-model="customerDetails.organizationCode">
+                                                
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <!-- <label class="control-label">Sub-Organisation Code</label> -->
+                                                <input class="form-control" type="hidden" v-model="customerDetails.subOrganisationCode">
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-md-3">
+                                        
+                                            <div class="form-group">
+                                                <label class="control-label">GIFMIS Item</label>
+                                                <select v-model="allitems.itemCode" class="form-control" >
+                                                    
+                                                    <option v-for="item in allitem" :value="item.itemCode">{{item.itemName}}</option>
+                                                    
+                                                </select>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">GIFMIS Reference Code</label>
+                                                <input class="form-control" type="text" v-model="allitems.gifmisReferenceCode">
+                                                
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Organisation Item Code</label>
+                                                <input class="form-control" type="text" v-model="allitems.itemOrgCode">
+                                                
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label">Item Name</label>
-                                                <select v-model="allitems.itemName" class="form-control" id="">
-                                                    <option>Choose</option>
-                                                    <option v-for="item in allitem" :value="item.itemName">{{item.itemName}}</option>
-                                                    
-                                                </select>
-
+                                                <input class="form-control" type="text" v-model="allitems.itemName">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">Organisation Code</label>
-                                                <select v-model="allitems.organisationCode" class="form-control" id="">
-                                                    <option>Choose</option>
-                                                    <option v-for="org in allorg" :value="org.organisationCode">{{org.organisationCode}}</option>
-                                                    
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">Sub-Organisation Name</label>
-                                                <input class="form-control" type="text" v-model="allitems.subOrganisationCode">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">Remita Revenue</label>
-                                                <input class="form-control" type="text" v-model="allitems.remitaRevenueReference">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">GIFMIS Ref Code</label>
-                                                <input class="form-control" type="text" v-model="allitems.gifmisReferenceCode">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label">Price</label>
                                                 <input class="form-control" type="text" v-model="allitems.price">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">TaxType</label>
+                                                <label class="control-label">Tax Type</label>
+                                                <!-- <input class="form-control" type="text" v-model="inputs.taxType"> -->
+                                                
                                                 <select v-model="allitems.taxType" class="form-control" id="">
-                                                    <option>Choose</option>
-                                                    <option v-for="taxx in tax" :value="taxx.taxTypeName">{{taxx.taxTypeName}}</option>
+                                                <option v-for="taxx in tax" :value="taxx.taxValue">{{taxx.taxTypeName}}</option>
                                                     
                                                 </select>
                                             </div>
                                         </div>
 
-                                    </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Revenue Reference Number</label>
+                                                <input class="form-control" type="text" v-model="allitems.remitaRevenueReference">
+                                                
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Self Service</label><br>
+                                                <input type="checkbox" v-model="allitems.isSelfService">
+                                                
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Custom Fields</label><br>
+                                                <input type="checkbox" v-model="allitems.hasCustomField">
+                                                
+                                            </div>
+                                        </div>
+
+                                        </div>
+                                        
+
+                                        <div class="mt-4 mb-4" v-if="allitems.hasCustomField">
+                                            <h6>Custom Fields</h6>
+                                            <hr>
+                                            <div class="row" v-for="custom in customFields">
+                                                <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label class="control-label">Organisation Item Code</label>
+                                                    <input class="form-control" @change="change()" type="text" v-model="custom.itemCode">
+                                                    
+                                                </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label class="control-label">Field Name</label>
+                                                    <input class="form-control" type="text" v-model="custom.fieldKey">
+                                                    
+                                                </div>
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label class="control-label">Field Type</label>
+                                                    <select v-model="custom.fieldType" class="form-control" id="">
+                                                    <option></option>
+                                                    <option value="text">Text</option>
+                                                    <option value="dropdown">Dropdown</option>
+                                                    <option value="date-range">Date Range</option>
+                                                    </select>
+                                                </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label class="control-label">Option</label>
+                                                    <textarea class="form-control" name="" id="" cols="30" rows="1" v-model="custom.fieldOption"></textarea>
+                                                </div>
+                                                </div>
+                                                <div class="col-md-1" style="margin-top: 30px;">
+                                                <span class="btn btn-danger btn-sm" style="margin: 5px 0 0 0;" @click="deleteRow(k, custom)"><i class="fa fa-times"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     
-                                </form>
+                                        
+                                        <button class="btn btn-outline-success mt-4">Edit</button>
+                                    </form>
 
                             </div>
                         </div>

@@ -1,5 +1,6 @@
 <script>
     import axios from 'axios'
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'setupbanks',
@@ -11,23 +12,50 @@
 
                 bankCode: '',
                 bankName: '',
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                role: '',
                 
             }
         },  
+
+        async mounted(){
+
+            this.role = localStorage.getItem('role');
+            
+            const resu = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resu.data.result;
+
+        },
 
         methods: {
             async handleBank(){
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
                 
                 
                 if (!this.bankCode) {
-                    this.errors.push("Bank Code required.");
+                    toast.error("Bank Code required.");
                 }
 
                 if (!this.bankName) {
-                    this.errors.push("Bank Name required.");
+                    toast.error("Bank Name required.");
                 }
                 
                 const response = await axios.post('api/Bank/addBank', {
@@ -43,12 +71,12 @@
 
                 if (response) {
 
-                    this.message.push(response.data.message);
+                    toast.success(response.data.message);
 
                     this.bankCode = "";
                     this.bankName = "";
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
                 
@@ -77,12 +105,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Setup Banks</h4>
+                              <h4 class="mb-0">Create Bank <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Setup Banks</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Create Bank</li>
                                   </ol>
                               </div>
 
@@ -116,33 +144,24 @@
                                             </div>
                                         </div> -->
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Bank Code</label>
+                                                <label class="control-label">Bank Code <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="bankCode">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Bank Name</label>
+                                                <label class="control-label">Bank Name <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="bankName">
                                             </div>
                                         </div>
 
-                                        <!-- <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">Bank Nuban</label>
-                                                <input class="form-control" type="text" >
-                                            </div>
-                                        </div> -->
-
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <button class="btn btn-outline-success mt-4">Create</button>
                                     
                                 </form>
-                                <!-- <button class="btn btn-primary float-left">Cancel</button> -->
-                                
 
                             </div>
                         </div>

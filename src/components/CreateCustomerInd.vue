@@ -1,5 +1,6 @@
 <script>
     import axios from 'axios'
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'createcustomerindividual',
@@ -27,11 +28,34 @@
                 firstname: '',
                 lastname: '',
                 middlename: '',
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                role: '',
                 
             }
         }, 
 
         async mounted(){
+
+            this.role = localStorage.getItem('role');
+
+            const resu = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resu.data.result;
 
             const resul = await axios.get('api/State/allstate', {
                 headers: {
@@ -59,46 +83,52 @@
             async handleCustomer(){
                 this.errors = [];
                 this.message = [];
-                
+                const toast = useToast()
 
                 if (!this.firstname) {
-                    this.errors.push("First Name required.");
+                    toast.error("First Name required.");
                 }
 
                 if (!this.lastname) {
-                    this.errors.push("Last Name required.");
+                    toast.error("Last Name required.");
+                }
+                if (this.lastname.length < 4) {
+                    toast.error("The field lastname must have a minimum length of '4'");
                 }
 
                 if (!this.mobileNumber1) {
-                    this.errors.push("Mobile Number required.");
+                    toast.error("Mobile Number required.");
                 }
 
                 if (!this.emailAddress) {
-                    this.errors.push("Email Adrress required.");
+                    toast.error("Email Adrress required.");
                 }
                 if (!this.bvn) {
-                    this.errors.push("BVN required.");
+                    toast.error("BVN required.");
+                }
+                if (this.bvn.length < 10) {
+                    toast.error("The field Bvn must have a minimum length of '10'.");
                 }
                 if (!this.nin) {
-                    this.errors.push("NIN required.");
+                    toast.error("NIN required.");
+                }
+                if (this.nin.length < 10) {
+                    toast.error("The field NIN must have a minimum length of '10'.");
                 }
                 if (!this.contactAddress) {
-                    this.errors.push("Contact Address required.");
+                    toast.error("Contact Address required.");
                 }
                 if (!this.lgaCode) {
-                    this.errors.push("LGA Code required.");
+                    toast.error("LGA Code required.");
                 }
                 if (!this.stateCode) {
-                    this.errors.push("State Code required.");
+                    toast.error("State Code required.");
                 }
                 if (!this.customerType) {
-                    this.errors.push("Customer Type required.");
-                }
-                if (!this.customerTin) {
-                    this.errors.push("TIN Number required.");
-                }
-                
-                const response = await axios.post('api/Customer/addcustomer', {
+                    toast.error("Customer Type required.");
+                }else{
+
+                    await axios.post('api/Customer/addcustomer', {
 
                     mobileNumber1: this.mobileNumber1,
                     mobileNumber2: this.mobileNumber2,
@@ -113,35 +143,40 @@
                     firstname: this.firstname,
                     lastname: this.lastname,
                     middlename: this.middlename,
-                    
-                }, {
+
+                    }, {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem('token'),
                         "Access-Control-Allow-Origin": true
                     }
-                });
-                
+                    }).then(response => { 
+                        toast.success(response.data.message);
+                        
+                        this.mobileNumber1 = "";
+                        this.mobileNumber2 = "";
+                        this.emailAddress = "";
+                        this.bvn = "";
+                        this.nin = "";
+                        this.contactAddress = "";
+                        this.lgaCode = "";
+                        this.stateCode = "";
+                        this.customerType = "";
+                        this.customerTin = "";
+                        this.firstname = "";
+                        this.lastname = "";
+                        this.middlename = "";
+                    })
+                    .catch(error => {
+                        if(error.response.data.title){
+                            toast.error(error.response.data.title);
+                        }
+                        
+                    });
 
-                if (response) {
-                    console.log(response);
-                    this.message.push(response.data.message);
-
-                    this.mobileNumber1 = "";
-                    this.mobileNumber2 = "";
-                    this.emailAddress = "";
-                    this.bvn = "";
-                    this.nin = "";
-                    this.contactAddress = "";
-                    this.lgaCode = "";
-                    this.stateCode = "";
-                    this.customerType = "";
-                    this.customerTin = "";
-                    this.firstname = "";
-                    this.lastname = "";
-                    this.middlename = "";
-                }else{
-                    this.errors.push("Incorrect Parameter");
                 }
+                
+                
+                
 
                 
                  
@@ -169,11 +204,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Create Customer</h4>
+                              <h4 class="mb-0">Create Customer <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Create Customer</li>
                                   </ol>
                               </div>
@@ -201,125 +236,112 @@
                                 </div>
                                 <form @submit.prevent="handleCustomer">
                                     <div class="row">
-                                    
-                                        <div class="col-md-4">
+
+                                        <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">First Name</label>
-                                                <input class="form-control" type="text" v-model="firstname">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Last Name</label>
-                                                <input class="form-control" type="text" v-model="lastname">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Middle Name (optional)</label>
-                                                <input class="form-control" type="text" v-model="middlename">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                    
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Customer Mobile Number</label>
-                                                <input class="form-control" type="text" v-model="mobileNumber1">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Customer Mobile Number 2 (optional)</label>
-                                                <input class="form-control" type="text" v-model="mobileNumber2">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Email Address</label>
-                                                <input class="form-control" type="text" v-model="emailAddress">
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="row">
-                                    
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">BVN</label>
-                                                <input class="form-control" type="text" v-model="bvn">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">NIN</label>
-                                                <input class="form-control" type="text" v-model="nin">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Contact Address</label>
-                                                <input class="form-control" type="text" v-model="contactAddress">
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="row">
-                                        
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">State Code</label>
-                                                <select v-model="stateCode" @change="onChange($event)" class="form-control">
-                                                    
-                                                    <option v-for="org in allstate" :value="org.stateCode">{{org.stateCode}}</option>
-                                                    
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">LGA Code</label>
-                                                <select v-model="lgaCode" class="form-control" id="">
-                                                    
-                                                    <option v-for="sub in alllga" :value="sub.lgaCode">{{sub.lgaCode}}</option>
-                                                    
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Customer Type</label>
+                                                <label class="control-label">Customer Type <span class="text-danger">*</span></label>
                                                 <select v-model="customerType" class="form-control" id="">
                                                     <option value="10">Individual</option>
                                                     <option value="11">Cooperate</option>
                                                 </select>
                                             </div>
                                         </div>
+                                    
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">First Name <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="firstname">
+                                            </div>
+                                        </div>
 
-                                    </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Middle Name (optional)</label>
+                                                <input class="form-control" type="text" v-model="middlename">
+                                            </div>
+                                        </div>
 
-                                    <div class="row">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Last Name <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="lastname">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Email Address <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="emailAddress">
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Mobile Number <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="mobileNumber1">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Mobile Number 2 (optional)</label>
+                                                <input class="form-control" type="text" v-model="mobileNumber2">
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">BVN <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="number" v-model="bvn">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">NIN <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="number" v-model="nin">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label">TIN Number</label>
                                                 <input class="form-control" type="text" v-model="customerTin">
                                             </div>
                                         </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">State <span class="text-danger">*</span></label>
+                                                <select v-model="stateCode" @change="onChange($event)" class="form-control">
+                                                    
+                                                    <option v-for="org in allstate" :value="org.stateCode">{{org.stateName}}</option>
+                                                    
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">LGA <span class="text-danger">*</span></label>
+                                                <select v-model="lgaCode" class="form-control" id="">
+                                                    
+                                                    <option v-for="sub in alllga" :value="sub.lgaCode">{{sub.lgaName}}</option>
+                                                    
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Contact Address <span class="text-danger">*</span></label>
+                                                <textarea class="form-control" v-model="contactAddress" cols="30" rows="5"></textarea>
+                                            </div>
+                                        </div>
+
                                     </div>
 
-                                    <button class="btn btn-success mr-4 float-left">Create Customer</button>
+                                    <button class="btn btn-outline-success mt-4">Create Customer</button>
                                 </form>
                                 <!-- <button class="btn btn-primary">Cancel</button> -->
                                 

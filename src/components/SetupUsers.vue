@@ -1,15 +1,21 @@
 <script>
-    import axios from 'axios'
+    import axios from 'axios';
+    import { useToast } from "vue-toastification";
+    import useValidate  from '@vuelidate/core'
+    import { required, sameAs  } from '@vuelidate/validators'
 
     export default{
         name: 'setupusers',
 
         data(){
             return{
+                v$: useValidate(),
                 errors: [],
+                error: false,
                 message: [],
                 allroles: [],
                 allsub: [],
+                allsuborg: [],
 
                 emailAddress: '',
                 subOrganisationCode: '',
@@ -20,7 +26,10 @@
                 middleName: '',
                 gender: '',
                 password: '',
+                confirmPassword: '',
                 role: '',
+
+                roles: '',
 
                 customerDetails: {
 
@@ -35,8 +44,20 @@
                 },
             }
         }, 
+
+        validations () {
+            return {
+                password: {
+                    required,
+ 
+                },
+                confirmPassword: { required, sameAsPassword: sameAs(this.password) }
+            }
+        },
         
         async mounted(){
+
+            this.roles = localStorage.getItem('role');
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -61,6 +82,14 @@
                 }
             },);
             this.allroles = result.data.result;
+
+            const results = await axios.get('api/SubOrganisation/suborganizations/'+this.customerDetails.organizationCode, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+
+            this.allsuborg = results.data.result;
         },
 
         methods: {
@@ -79,54 +108,38 @@
             async handleUser(){
                 this.errors = [];
                 this.message = [];
+                const toast = useToast()
 
-                
-                
-                // if (!this.emailAddress) {
-                //     this.errors.push("Email Address required.");
-                // }
+                if (!this.emailAddress) {
+                    toast.error("Email Address required.");
+                }
 
-                // if (!this.subOrganisationCode) {
-                //     this.errors.push("Sub-Organisation Code required.");
-                // }
+                if (!this.subOrganisationCode) {
+                    toast.error("Sub-Organisation Code required.");
+                }
 
-                // if (!this.organizationCode) {
-                //     this.errors.push("Organisation Code required.");
-                // }
+                if (!this.firstName) {
+                    toast.error("Firstname required.");
+                }
 
-                // if (!this.unit) {
-                //     this.errors.push("Unit required.");
-                // }
+                if (!this.lastName) {
+                    toast.error("Lastname required.");
+                }
 
-                // if (!this.firstName) {
-                //     this.errors.push("Firstname required.");
-                // }
+                if (!this.gender) {
+                    toast.error("Gender required.");
+                }
 
-                // if (!this.lastName) {
-                //     this.errors.push("Lastname required.");
-                // }
+                if (!this.role) {
+                    toast.error("Role required.");
+                }
 
-                // if (!this.middleName) {
-                //     this.errors.push("Middlename required.");
-                // }
-
-                // if (!this.gender) {
-                //     this.errors.push("Gender required.");
-                // }
-
-                // if (!this.password) {
-                //     this.errors.push("Password required.");
-                // }
-
-                // if (!this.role) {
-                //     this.errors.push("Role required.");
-                // }
-                
-                
-                
-                const response = await axios.post('api/Users/adduser', {
+                this.v$.$validate()
+                if (!this.v$.$error) {
+                   
+                    const response = await axios.post('api/Users/adduser', {
                     emailAddress: this.emailAddress,
-                    subOrganisationCode: this.customerDetails.subOrganisationCode,
+                    subOrganisationCode: this.subOrganisationCode,
                     organizationCode: this.customerDetails.organizationCode,
                     unit: this.unit,
                     firstName: this.firstName,
@@ -136,33 +149,35 @@
                     password: this.password,
                     role: this.role,
                     
-                }, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },);
+                    
+
+                    if (response) {
+                        // console.log(response);
+                        toast.success(response.data.message);
+
+                        this.emailAddress = "";
+                        this.subOrganisationCode = "";
+                        this.organizationCode = "";
+                        this.firstName = "";
+                        this.lastName = "";
+                        this.middleName = "";
+                        this.gender = "";
+                        this.password = "";
+                        this.confirmPassword = "";
+                        this.role = "";
+                    }else{
+                        toast.error("Incorrect Parameter");
                     }
-                },);
-                
-
-                if (response) {
-                    // console.log(response);
-                    this.message.push(response.data.message);
-
-                    this.emailAddress = "";
-                    this.subOrganisationCode = "";
-                    this.organizationCode = "";
-                    this.unit = "";
-                    this.firstName = "";
-                    this.lastName = "";
-                    this.middleName = "";
-                    this.gender = "";
-                    this.password = "";
-                    this.role = "";
-                }else{
-                    this.errors.push("Incorrect Parameter");
+                    
+                }else {
+                    toast.error("Password & Confirm Password Don't Match.");
                 }
-
-                
-                 
+  
             }
         }
     }
@@ -187,12 +202,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Setup Users</h4>
+                              <h4 class="mb-0">Create User <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.roles}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Setup Users</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Create User</li>
                                   </ol>
                               </div>
 
@@ -206,16 +221,8 @@
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-body">
-                                <router-link to="/view-users"><button class="btn btn-success">View Users</button></router-link>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-body">
                                 <div class="alert alert-danger" v-if="errors.length">
-                                    <b>Please correct the following error(s):</b>
-                                    <ul>
-                                        <li v-for="error in errors">{{ error }}</li>
-                                    </ul>
+                                    <strong v-for="error in errors">{{ error }}</strong>
                                 </div>
 
                                 <div class="alert alert-success" v-if="message.length">
@@ -225,70 +232,47 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">Email Address</label>
-                                                <input class="form-control" type="text" v-model="emailAddress">
-                                            </div>
-                                        </div>
+                                                <label class="control-label">Sub-Organization <span class="text-danger">*</span></label>
+                                                <select v-model="subOrganisationCode" class="form-control" id="">
 
-                                        <div>
-                                            <div>
-                                                <!-- <label class="control-label">Organization Code</label> -->
-                                                <input class="form-control" type="hidden" v-model="customerDetails.organizationCode" readonly @change="onChange($event)">
-
-                                                <!-- <select v-model="organizationCode" @change="onChange($event)" class="form-control">
-                                                    <option>Choose</option>
-                                                    <option :value="customerDetails.organizationCode">{{customerDetails.organizationCode}}</option>
-                                                    
-                                                </select> -->
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <div>
-                                                <!-- <label class="control-label">Sub-Organization Code</label> -->
-                                                <input class="form-control" type="hidden" v-model="customerDetails.subOrganisationCode" readonly>
-
-                                                <!-- <select v-model="subOrganisationCode" class="form-control" id="">
-                                                    <option>Choose</option>
-                                                    <option v-for="sub in allsub" :value="sub.subOrganisationCode">{{sub.subOrganisationCode}}</option>
-                                                    
-                                                </select> -->
+                                                    <option v-for="sub in allsuborg" :value="sub.subOrganisationCode">{{sub.subOrganisationName}}</option>
+                                                </select>
                                             </div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">Unit</label>
-                                                <input class="form-control" type="text" v-model="unit">
+                                                <label class="control-label">First Name <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="firstName" autocomplete="nope">
                                             </div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">First Name</label>
-                                                <input class="form-control" type="text" v-model="firstName">
+                                                <label class="control-label">Middle Name (optional)</label>
+                                                <input class="form-control" type="text" v-model="middleName" autocomplete="nope">
                                             </div>
                                         </div>
                                     
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">Last Name</label>
-                                                <input class="form-control" type="text" v-model="lastName">
+                                                <label class="control-label">Last Name <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="lastName" autocomplete="nope">
                                             </div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">Middle Name</label>
-                                                <input class="form-control" type="text" v-model="middleName">
+                                                <label class="control-label">Email Address <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="emailAddress" autocomplete="nope">
                                             </div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">Gender</label>
+                                                <label class="control-label">Gender <span class="text-danger">*</span></label>
                                                 <select v-model="gender" class="form-control" id="">
-                                                    <option>Choose</option>
+                                                    
                                                     <option value="male">Male</option>
                                                     <option value="female">Female</option>
                                                 </select>
@@ -297,20 +281,27 @@
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">Password</label>
-                                                <input class="form-control" type="password" v-model="password">
+                                                <label class="control-label">Role <span class="text-danger">*</span></label>
+                                                
+                                                <select v-model="role" class="form-control" id="">
+                                                    <option v-for="item in allroles" :key="item.rolCode" :value="item.rolCode">{{item.rolName}}</option>
+                                                    
+                                                </select>
                                             </div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label class="control-label">Role</label>
+                                                <label class="control-label">Password <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="password" v-model="password" autocomplete="nope">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Confirm Password <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="password" v-model="confirmPassword" autocomplete="nope">
                                                 
-                                                <select v-model="role" class="form-control" id="">
-                                                    <option>Choose</option>
-                                                    <option v-for="item in allroles" :key="item.rolCode" :value="item.rolCode">{{item.rolName}}</option>
-                                                    
-                                                </select>
                                             </div>
                                         </div>
 
@@ -345,7 +336,7 @@
                                         </div> -->
 
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button> 
+                                    <button class="btn btn-outline-success mt-4">Create User</button> 
                                 </form>
                                 <!-- <button class="btn btn-primary float-left">Cancel</button> -->
 

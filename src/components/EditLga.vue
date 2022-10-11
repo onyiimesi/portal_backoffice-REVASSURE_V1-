@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'editlga',
@@ -9,10 +10,24 @@
                 errors: [],
                 message: [],
 
-               
+               lga:{
                 id: '',
                 lgaName: '', 
+               }
+
             }
+        },
+
+        async mounted(){
+
+            const result = await axios.get('api/Lga/lga/'+this.$route.params.lgaCode, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+
+            this.lga = result.data.result;
+
         },
 
         methods: {
@@ -20,20 +35,16 @@
 
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
                 
-                
-                if (!this.id) {
-                    this.errors.push("ID required.");
-                }
 
-                if (!this.lgaName) {
-                    this.errors.push("LGA Name required.");
+                if (!this.lga.lgaName) {
+                    toast.error("LGA Name required.");
                 }
                 
                 const response = await axios.put('api/Lga/editlga', {
-                    id: this.id,
-                    lgaName: this.lgaName,
+                    id: this.lga.id,
+                    lgaName: this.lga.lgaName,
                     
                 }, {
                 headers: {
@@ -44,10 +55,10 @@
 
                 if (response) {
                     
-                    this.message.push(response.data.message);
+                    toast.success(response.data.message);
 
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 } 
             }
         },
@@ -108,20 +119,20 @@
 
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="control-label">ID</label>
-                                                <input class="form-control" type="text" v-model="id">
+                                                
+                                                <input class="form-control" type="hidden" v-model="lga.id">
                                             </div>
                                         </div>
 
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label class="control-label">LGA Name</label>
-                                                <input class="form-control" type="text" v-model="lgaName">
+                                                <input class="form-control" type="text" v-model="lga.lgaName">
                                             </div>
                                         </div>
 
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <button class="btn btn-success mr-4 float-left">Edit</button>
                                     
                                 </form>
 

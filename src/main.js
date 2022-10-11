@@ -2,8 +2,12 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import Vuex from 'vuex'
 import router from './router'
+import VueApexCharts from "vue3-apexcharts"
 import './axios'
 import "@/assets/base.css";
+import Toast from "vue-toastification";
+// Import the CSS or use your own!
+import "vue-toastification/dist/index.css";
 
 const state = () => ({
     settoken:  null,
@@ -64,13 +68,18 @@ const store = new Vuex.Store({
 
 export default store;
 
+
 const app = createApp(App)
+
+app.use(VueApexCharts);
 
 app.use(Vuex)
 
 app.use(store)
 
 app.use(router)
+
+app.use(Toast);
 
 app.mount('#app')
 

@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'profile',
@@ -22,12 +23,14 @@
                     lastName: '',
                     middleName: '',
                     gender: '',
-                },   
+                },
+                role: '',   
                 
             }
         },
 
         async mounted(){
+            this.role = localStorage.getItem('role');
 
             const result = await axios.get('api/Users/profile', {
                 headers: {
@@ -68,6 +71,8 @@
             },
 
             async editProfile(){
+
+                const toast = useToast()
         
                 const response = await axios.put('api/Users/editprofile', {
                     id: this.customerDetails.id,
@@ -86,14 +91,12 @@
                     }
                 },);
 
-                console.log(response)
-
                 if(response) {
 
-                    this.message.push(response.data.message);
+                    toast.success(response.data.message);
 
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
             }
@@ -120,11 +123,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Profile</h4>
+                              <h4 class="mb-0">Profile <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Profile</li>
                                   </ol>
                               </div>
@@ -154,7 +157,45 @@
                                 <form @submit.prevent="editProfile">
                                     <div class="row">
                                         <input class="form-control" readonly type="hidden" v-model="customerDetails.id">
-                                        <div class="col-md-6">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Organization</label>
+                                                <input class="form-control" readonly type="text" v-model="customerDetails.organizationCode">
+                                            </div>
+                                        </div>
+
+                                        
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Sub-Organization</label>
+                                                <input class="form-control" readonly type="text" v-model="customerDetails.subOrganisationCode">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">First Name</label>
+                                                <input class="form-control" type="text" v-model="customerDetails.firstName">
+                                            </div>
+                                        </div>
+
+
+
+                                      <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Last Name</label>
+                                                <input class="form-control" type="text" v-model="customerDetails.lastName">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Middle Name</label>
+                                                <input class="form-control" type="text" v-model="customerDetails.middleName">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label">Email Address</label>
                                                 <input class="form-control" readonly type="text" v-model="customerDetails.emailAddress">
@@ -162,61 +203,8 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">Organisation Code</label>
-                                                <select v-model="customerDetails.organizationCode" @change="onChange($event)" class="form-control">
-                                                    <option>{{customerDetails.organizationCode}}</option>
-                                                    <option v-for="org in allorg" :value="org.organisationCode">{{org.organisationCode}}</option>
-                                                    
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">Sub-Organisation Code</label>
-                                                <select v-model="customerDetails.subOrganisationCode" class="form-control" id="">
-                                                    <option>{{customerDetails.subOrganisationCode}}</option>
-                                                    <option v-for="sub in allsub" :value="sub.subOrganisationCode">{{sub.subOrganisationCode}}</option>
-                                                    
-                                                </select>
-                                            
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">First Name</label>
-                                                <input class="form-control" type="text" v-model="customerDetails.firstName">
-                                            </div>
-                                        </div>
 
-                                    </div>
-
-                                    <div class="row">
-
-                                      <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">Last Name</label>
-                                                <input class="form-control" type="text" v-model="customerDetails.lastName">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">Middle Name</label>
-                                                <input class="form-control" type="text" v-model="customerDetails.middleName">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-
-                                      <div class="col-md-6">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label class="control-label">Gender</label>
                                                 <input class="form-control" type="text" v-model="customerDetails.gender">

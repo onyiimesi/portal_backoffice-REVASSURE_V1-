@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'customeruserinvoice',
@@ -37,7 +38,7 @@
                 orgDetails: {
 
                     emailAddress: '',
-                    subOrganizationCode: '',
+                    subOrganisationCode: '',
                     organizationCode: '',
                     firstName: '',
                     lastName: '',
@@ -53,9 +54,6 @@
 
                 itemList: [],
 
-                
-                
-
                 items: [{
                     itemCode: '',
                     quantity: '',
@@ -63,7 +61,7 @@
                     
                 }],
 
-                
+                role: '',
                 
                 
             }
@@ -71,7 +69,7 @@
 
         async mounted(){
 
-
+            this.role = localStorage.getItem('role');
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -149,7 +147,6 @@
 
             deleteRow(index, newrow){
                 var idx = this.items.indexOf(newrow);
-                console.log(idx, index);
                 if(idx > -1){
                     this.items.splice(idx, 1);
                 }
@@ -172,7 +169,7 @@
 
                 this.allitems = resp.data.result.itemDetails;
 
-                console.log(this.allitems)
+                // console.log(this.allitems)
 
                 
                 this.items.push({
@@ -187,39 +184,48 @@
             async createInvoice(){
                 this.errors = [];
                 this.message = [];
+                const toast = useToast()
 
-
-                this.itemList.push(this.items);
-        
-                const response = await axios.post('api/Invoice/addinvoice', {
-                    organizationCode: this.orgDetails.organizationCode,
-                    SubOrganizationCode: this.orgDetails.subOrganisationCode,
-                    customerCode: this.customerDetails.customerCode,
-                    currencyCode: this.currencyCode,
-
-                    items: this.items,
-                    
-                }, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
-                    }
-                },);
-
-                console.log(response)
-
-                if(response) {
-
-                    this.message.push(response.data.message);
-                    
-                    this.currencyCode = "";
-                    this.items = {};
-                    this.invoicesubtotal = "";
-                    this.invoicetotal = "";
-                    this.allitems = "";
-                    
-
+                if(!this.currencyCode){
+                    toast.error("Please choose a currency");
                 }else{
-                    this.errors.push("Incorrect Parameter");
+
+                    this.itemList.push(this.items);
+            
+                    await axios.post('api/Invoice/addinvoice', {
+                        organizationCode: this.orgDetails.organizationCode,
+                        SubOrganizationCode: this.orgDetails.subOrganisationCode,
+                        customerCode: this.customerDetails.customerCode,
+                        currencyCode: this.currencyCode,
+
+                        items: this.items,
+                        
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },).then(response => { 
+                        toast.success(response.data.message);
+                        
+                        this.currencyCode = "";
+                        this.items = [{
+                            itemCode: '',
+                            quantity: '',
+                            line_total: 0,
+                            
+                        }];
+                        this.invoicesubtotal = "";
+                        this.invoicetotal = "";
+                        this.allitems = "";
+                    })
+                    .catch(error => {
+                        if(error.response.data.title){
+                            toast.error("Please fill in all the fields");
+                        }
+                        
+                    });
+
+                    
                 }
                 
 
@@ -250,12 +256,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Create Customer Invoice</h4>
+                              <h4 class="mb-0">Create Customer Bill <br> <span style="font-size: 14px;font-weight: 500;">{{orgDetails.organizationCode}} //  {{orgDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{orgDetails.lastName}} {{orgDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Create Customer Invoice</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Create Customer Bill</li>
                                   </ol>
                               </div>
 
@@ -305,7 +311,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label class="control-label">Currency Code</label>
+                                            <label class="control-label">Currency <span class="text-danger">*</span></label>
                                             <select v-model="currencyCode" class="form-control">
                                                 
                                                 <option :value="this.allcurrency[0]">{{this.allcurrency[0]}}</option>
@@ -339,8 +345,8 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="control-label">Sub-Organisation Code</label>
-                                        <input class="form-control" readonly type="text" v-model="orgDetails.subOrganisationCode">
+                                        <!-- <label class="control-label">Sub-Organisation Code</label> -->
+                                        <input class="form-control" readonly type="hidden" v-model="orgDetails.subOrganisationCode">
                                     </div>
                                 </div>
 
@@ -370,9 +376,9 @@
 
                                     <table class="table table-bordered text-center">
                                     <thead class="bg-dark text-white">
-                                        <td>Item Name & Price</td>
+                                        <td>Item Name & Price <span class="text-danger">*</span></td>
                                         <!-- <td>Price</td> -->
-                                        <td>Quantity</td>
+                                        <td>Quantity <span class="text-danger">*</span></td>
                                         <td>Amount</td>
                                         <td></td>
                                     </thead>
@@ -381,7 +387,6 @@
                                         <tr>
                                             <td>
                                                 <select v-model="newrow.itemCode" class="form-control" @change="onChange($event)" :key="newrow">
-                                                    <option>Choose</option>
                                                     <option v-for="sub in allitem" :value="sub.itemOrgCode">{{sub.itemCode}} - PRICE: {{sub.price}}</option>
                                                     
                                                 </select>
@@ -488,20 +493,21 @@
                                                     <p style="font-size: 16px;">Grand Total: <strong>{{ invoicetotal }}</strong></p>
                                                 </div>
 
-                                                <button class="btn btn-success mt-3 mr-4 ">Submit</button>
+                                                <button class="btn btn-success mt-3">Submit</button>
+
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                         
+                            </div>
+                        </form>
                     </div>
-                    </form>
-                </div>
-                <!-- end row -->
+                    <!-- end row -->
 
-              </div> <!-- container-fluid -->
-          </div>
+                </div> <!-- container-fluid -->
+            </div>
           <!-- End Page-content -->
 
           <footer class="footer">

@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'editbankaccount',
@@ -14,13 +15,35 @@
                     bctId: '',
                     accountName: '',
                     accountNumber: '',
-                }
+                },
+
+                role: '',
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
                 
                 
             }
         },
 
         async mounted(){
+            this.role = localStorage.getItem('role');
+
+            const resul = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resul.data.result;
 
             const result = await axios.get('api/BankAccounts/details/'+this.$route.params.bctId, {
                 headers: {
@@ -36,19 +59,19 @@
                 
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
 
                 // if (!this.bankAccountctId) {
                 //     this.errors.push("Bank Account ID required.");
                 // }
 
-                // if (!this.accountName) {
-                //     this.errors.push("Bank Account Name required.");
-                // }
+                if (!this.accountName) {
+                    toast.error("Bank Account Name required.");
+                }
 
-                // if (!this.accountNumber) {
-                //     this.errors.push("Bank Account Number required.");
-                // }
+                if (!this.accountNumber) {
+                    toast.error("Bank Account Number required.");
+                }
                 
                 const response = await axios.put('api/BankAccounts/edit', {
                     bankAccountctId: this.bankAccounts.bankAccountctId,
@@ -64,10 +87,10 @@
 
                 if (response) {
                     
-                    this.message.push(response.data.message);
+                    toast.success(response.data.message);
 
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
                 
@@ -96,11 +119,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Edit Bank Account</h4>
+                              <h4 class="mb-0">Edit Bank Account <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}}</span> // <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Edit Bank Account</li>
                                   </ol>
                               </div>
@@ -127,14 +150,14 @@
                                 </div>
                                 <form @submit.prevent="editBankAccount">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">Bank ID</label>
                                                 <input class="form-control" type="text" v-model="bankAccounts.bankAccountctId">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">Bank Account Name</label>
                                                 <input class="form-control" type="text" v-model="bankAccounts.accountName">
@@ -142,22 +165,15 @@
                                         </div>
 
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">Bank Account Number</label>
                                                 <input class="form-control" type="text" v-model="bankAccounts.accountNumber">
                                             </div>
                                         </div>
 
-                                        <!-- <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">Bank Nuban</label>
-                                                <input class="form-control" type="text" >
-                                            </div>
-                                        </div> -->
-
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <button class="btn btn-outline-success mt-4">Edit</button>
                                     
                                 </form>
 

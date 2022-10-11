@@ -13,7 +13,7 @@
                 showsearch: false,
                 caris: [],
 
-                role: null,
+                role: '',
 
                 subsearch: '',
                 showsubsearch: false,
@@ -36,6 +36,7 @@
         },
 
         async mounted(){
+            this.role = localStorage.getItem('role');
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -55,6 +56,15 @@
             },);
 
             this.allorg = result.data.result;
+            setTimeout(() => {
+            $("#datatable").DataTable({
+                lengthMenu: [
+                [5,10, 25, 50, -1],
+                [5,10, 25, 50, "All"],
+                ],
+                pageLength: 10,
+            });
+            });
         },
 
         methods: {
@@ -115,12 +125,12 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-flex align-items-center justify-content-between">
-                            <h4 class="mb-0">View Sub-Organisations</h4>
+                            <h4 class="mb-0">Sub-Organizations <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} // </span><span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                    <li class="breadcrumb-item active">View Sub-Organisations</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                    <li class="breadcrumb-item active">Sub-Organizations</li>
                                 </ol>
                             </div>
 
@@ -134,7 +144,7 @@
                     <div class="col-12">
                         <div class="card" v-if="showsearch == true">
                             <div class="card-body table-responsive">
-                                <div>
+                                <!-- <div>
                                     <form @submit.prevent="searchOrg">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -152,13 +162,13 @@
                                             
                                         </div>
                                     </form>
-                                </div><hr>
+                                </div><hr> -->
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
-                                        <th>Sub-Organisation Code</th>
-                                        <th>Sub-Organisation Name</th>
-                                        <th>Organisation Code</th>
+                                        <th>Sub-Organization Code</th>
+                                        <th>Sub-Organization Name</th>
+                                        <th>Organization Code</th>
                                         <th>Action</th>
                                         <!-- <th>BALANCE</th> -->
                                     </tr>
@@ -169,7 +179,7 @@
                                     
                                     <tr v-for="cari in caris" :key="cari.id">
                                         <td>{{cari.subOrganisationCode}}</td>
-                                        <td>{{cari.subOrganisation1}}</td>
+                                        <td>{{cari.subOrganisationName}}</td>
                                         <td>{{cari.organisationCode}}</td>
                                         <td>
                                             <router-link :to="'/edit-org/'+cari.id"><button class="btn btn-success mr-2">Edit</button></router-link>
@@ -186,7 +196,7 @@
 
                         <div class="card" v-if="showsearch == false">
                             <div class="card-body table-responsive">
-                                <div>
+                                <!-- <div>
                                     <form @submit.prevent="searchOrg">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -204,13 +214,13 @@
                                             
                                         </div>
                                     </form>
-                                </div><hr>
+                                </div><hr> -->
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
-                                        <th>Sub-Organisation Code</th>
-                                        <th>Sub-Organisation Name</th>
-                                        <th>Organisation Code</th>
+                                        <th>Sub-Organization Code</th>
+                                        <th>Sub-Organization Name</th>
+                                        <th>Organization Code</th>
                                         <!-- <th>Action</th> -->
                                         <!-- <th>BALANCE</th> -->
                                     </tr>
@@ -220,7 +230,7 @@
                                     <tbody>
                                     <tr v-for="cari in caris" :key="cari.id">
                                         <td>{{cari.subOrganisationCode}}</td>
-                                        <td>{{cari.subOrganisation1}}</td>
+                                        <td>{{cari.subOrganisationName}}</td>
                                         <td>{{cari.organisationCode}}</td>
                                         <!-- <td>
                                             <router-link :to="'/edit-org/'+cari.id"><button class="btn btn-success mr-2">Edit</button></router-link>
@@ -237,11 +247,11 @@
 
                 
 
-                <div class="row" v-if="role === 'PortalAdmin' || role === 'OrgAdmin' || role === '0' ">
+                <div class="row" v-if="role === 'PortalAdmin' || role === 'org-admin' || role === '0' ">
                     <div class="col-12">
                         <div class="card" v-if="showsubsearch == true">
                             <div class="card-body table-responsive">
-                                <div>
+                                <!-- <div>
                                     <form @submit.prevent="searchSubOrg">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -259,13 +269,13 @@
                                             
                                         </div>
                                     </form>
-                                </div><hr>
+                                </div><hr> -->
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
-                                        <th>Sub-Organisation Code</th>
-                                        <th>Sub-Organisation Name</th>
-                                        <th>Organisation Code</th>
+                                        <th>Sub-Organization Code</th>
+                                        <th>Sub-Organization Name</th>
+                                        <th>Organization Code</th>
                                         <th>Action</th>
                                         <!-- <th>BALANCE</th> -->
                                     </tr>
@@ -275,45 +285,29 @@
                                     <tr>
                                         
                                         <td>{{this.cariss.data.result.subOrganisationCode}}</td>
-                                        <td>{{this.cariss.data.result.subOrganisation1}}</td>
+                                        <td>{{this.cariss.data.result.subOrganisationName}}</td>
                                         <td>{{this.cariss.data.result.organisationCode}}</td>
                                         <td>
-                                            <router-link :to="'/edit-suborg/'+this.cariss.data.result.id"><button class="btn btn-success mr-2">Edit</button></router-link>
+                                            <router-link :to="'/edit-suborg/'+this.cariss.data.result.subOrganisationCode"><button class="btn btn-outline-success mr-2">Edit</button></router-link>
                                         </td>
                                         <!-- <td>61</td> -->
                                     </tr>
                                     </tbody>
                                 </table>
                             </div>
-                        </div><hr>
+                        </div>
 
                         <div class="card" v-if="showsubsearch == false">
                             <div class="card-body table-responsive">
-                                <div>
-                                    <form @submit.prevent="searchSubOrg">
-                                        <div class="row">
-                                            <div class="col-md-6">
-
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="d-flex">
-                                                    
-                                                    <input class="form-control mr-3" type="text" v-model="subsearch" placeholder="Enter Sub-Organisation Code">
-
-                                                    <button class="btn btn-success ">Search</button>
-                                                </div>
-                                            </div>
-
-                                            
-                                        </div>
-                                    </form>
-                                </div><hr>
+                                <div class="mb-4 text-right" v-if="role === 'org-admin' ">
+                                    <router-link class="btn btn-outline-success" to="/create-sub-organization"><i class="fa fa-plus"></i> Create Sub-Organization</router-link>
+                                </div>
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
-                                        <th>Organisation Code</th>
-                                        <th>Sub-Organisation Code</th>
-                                        <th>Sub-Organisation Name</th>
+                                        <!-- <th>Organisation Code</th> -->
+                                        <th>Sub-Organization Code</th>
+                                        <th>Sub-Organization Name</th>
                                         <th>Action</th>
                                         <!-- <th>BALANCE</th> -->
                                     </tr>
@@ -322,13 +316,52 @@
 
                                     <tbody>
                                     <tr v-for="sub in allorg" :key="sub.id">
-                                        <td>{{sub.organisationCode}}</td>
+                                        <!-- <td>{{sub.organisationCode}}</td> -->
                                         <td>{{sub.subOrganisationCode}}</td>
-                                        <td>{{sub.subOrganisation1}}</td>
+                                        <td>{{sub.subOrganisationName}}</td>
                                         <td>
-                                            <router-link :to="'/edit-suborg/'+sub.id"><button class="btn btn-success mr-2">Edit</button></router-link>
+                                            <!-- <router-link :to="'/edit-suborg/'+sub.subOrganisationCode"><button class="btn btn-success mr-2">Edit</button></router-link> -->
+                                            <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + sub.subOrganisationCode">View</button>
                                         </td>
                                         <!-- <td>61</td> -->
+
+
+                                        <div class="modal fade" :id="'bs-example-modal-lg-' + sub.subOrganisationCode" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    
+                                                    <div class="modal-header">
+                                                        <h5 id="myLargeModalLabel" class="modal-title mt-0">View Sub-Organization</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-6 col-md-6 mb-4">
+                                                                <div class="form-group">
+                                                                    <label class="control-label">Sub-Organisation Code</label>
+                                                                    <h5>{{sub.subOrganisationCode}}</h5>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-6 col-md-6 mb-4">
+                                                                <div class="form-group">
+                                                                    <label class="control-label">Sub-Organisation Name</label>
+                                                                    <h5>{{sub.subOrganisationName}}</h5>
+                                                                </div>
+                                                            </div>
+
+                                                        </div><hr>
+                                                    
+            
+                                                        <router-link :to="'/edit-suborg/'+sub.subOrganisationCode"><button class="btn btn-outline-success" data-dismiss="modal">Edit Sub-Organization</button></router-link>
+                                                    </div>
+                                                    
+                                                </div><!-- /.modal-content -->
+                                                
+                                            </div><!-- /.modal-dialog -->
+                                        </div>
                                     </tr>
                                     </tbody>
                                 </table>

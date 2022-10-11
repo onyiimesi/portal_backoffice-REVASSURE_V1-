@@ -1,5 +1,6 @@
 <script>
     import axios from 'axios'
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'suborganizationsetup',
@@ -13,7 +14,8 @@
                 
                 subOrganisationCode: '',
                 subOrganisationName: '',
-                organisationCode: '',
+
+                role: '',
 
                 customerDetails: {
 
@@ -30,6 +32,7 @@
         },  
 
         async mounted(){
+            this.role = localStorage.getItem('role');
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -37,54 +40,28 @@
                 }
             },);
             this.customerDetails = resul.data.result;
-
-
-            const result = await axios.get('api/Item/organizations/'+this.customerDetails.organizationCode, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
-                }
-            },);
-
-            this.allitems = result.data.result;
         },
 
         methods: {
-            
-            // async onChange(event) {
-
-            //     const response = await axios.get('api/SubOrganisation/suborganizations/'+event.target.value,{
-            //         headers: {
-            //             Authorization: 'Bearer ' + localStorage.getItem('token')
-            //         }
-            //     },);
-
-            //     this.allsub = response.data.result;
-            // },
-
             async handleSubOrg(){
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
                 
                 
                 if (!this.subOrganisationCode) {
-                    this.errors.push("Sub-Organisation Code required.");
+                    toast.error("Sub-Organisation Code required.");
                 }
 
                 if (!this.subOrganisationName) {
-                    this.errors.push("Sub-Organisation Name required.");
+                    toast.error("Sub-Organisation Name required.");
                 }
+                
 
-                if (!this.organisationCode) {
-                    this.errors.push("Organisation Code required.");
-                }
-                
-                
-                
                 const response = await axios.post('api/SubOrganisation/addsuborganization', {
                     subOrganisationCode: this.subOrganisationCode,
                     subOrganisationName: this.subOrganisationName,
-                    organisationCode: this.organisationCode
+                    organisationCode: this.customerDetails.organizationCode
                     
                 }, {
                 headers: {
@@ -94,14 +71,14 @@
                 
 
                 if (response) {
-                    console.log(response);
-                    this.message.push(response.data.message);
+                    // console.log(response);
+                    toast.success(response.data.message);
 
                     this.subOrganisationCode = "";
                     this.subOrganisationName = "";
-                    this.organisationCode = "";
+
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
                 
@@ -130,12 +107,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Sub-Organization Setup</h4>
+                              <h4 class="mb-0">Create Sub-Organization <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Sub-Organization Setup</li>
+                                      <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Create Sub-Organization</li>
                                   </ol>
                               </div>
 
@@ -164,22 +141,17 @@
                                 </div>
                                 <form @submit.prevent="handleSubOrg">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Organization Code</label>
-                                                <!-- <input class="form-control" type="text" v-model="organisationCode"> -->
-
-                                                <select v-model="organisationCode" class="form-control">
-                                                    <!-- <option>Choose</option> -->
-                                                    <option :value="customerDetails.organizationCode">{{customerDetails.organizationCode}}</option>
-                                                    
-                                                </select>
+                                                <!-- <label class="control-label">Organization Code</label> -->
+                                                <input class="form-control" type="hidden" v-model="customerDetails.organizationCode">
                                             </div>
                                         </div>
-
-                                        <div class="col-md-12">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Sub-Organization Code</label>
+                                                <label class="control-label">Sub-Organization Code <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="subOrganisationCode">
 
                                                 <!-- <select v-model="subOrganisationCode" class="form-control" id="">
@@ -190,15 +162,15 @@
                                             </div>
                                         </div>
                                     
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Sub-Organization Name</label>
+                                                <label class="control-label">Sub-Organization Name <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="subOrganisationName">
                                             </div>
                                         </div>
 
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <button class="btn btn-outline-success">Create</button>
 
                                 </form>
                                 <!-- <button class="btn btn-primary float-left">Cancel</button> -->

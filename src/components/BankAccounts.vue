@@ -8,16 +8,48 @@
             return{
                 name: '',
                 bankAccounts: [],
+
+                role: '',
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
             }
         },
 
         async mounted(){
+            this.role = localStorage.getItem('role');
+
+            const resul = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resul.data.result;
+
             const result = await axios.get('api/BankAccounts/bankAccounts', {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
             },);
             this.bankAccounts = result.data.result;
+            // setTimeout(() => {
+            // $("#datatable").DataTable({
+            //     lengthMenu: [
+            //     [5,10, 25, 50, -1],
+            //     [5,10, 25, 50, "All"],
+            //     ],
+            //     pageLength: 10,
+            // });
+            // });
 
         },
     }
@@ -42,12 +74,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Bank Balances</h4>
+                              <h4 class="mb-0">Bank Accounts <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}}</span> // <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Bank Balances</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Bank Accounts</li>
                                   </ol>
                               </div>
 
@@ -61,13 +93,15 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body table-responsive">
-
+                                <div class="mb-4 text-right" v-if="role === 'revenue-officer' ">
+                                    <router-link class="btn btn-outline-success" to="/create-bank-account"><i class="fa fa-plus"></i> Create Bank Account</router-link>
+                                </div>
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
                                         <th>Bank Code</th>
                                         <th>Bank Name</th>
-                                        <th>Bank Account Number</th>
+                                        <th>Account Number</th>
                                         <th>Action</th>
                                         <!-- <th>BALANCE</th> -->
                                     </tr>
@@ -80,9 +114,52 @@
                                         <td>{{item.bctAccountName}}</td>
                                         <td>{{item.bctAccountNumber}}</td>
                                         <td>
-                                            <router-link :to="'/edit-bank-account/'+item.bctId"><button class="btn btn-success mr-2">Edit</button></router-link>
+                                            <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.bctId">View</button>
                                         </td>
-                                        <!-- <td>61</td> -->
+                                        
+                                        
+                                        <div class="modal fade" :id="'bs-example-modal-lg-' + item.bctId" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    
+                                                    <div class="modal-header">
+                                                        <h5 id="myLargeModalLabel" class="modal-title mt-0">View Bank Account</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-6 col-md-4 mb-4">
+                                                                <div class="form-group">
+                                                                    <label class="control-label">Bank Code</label>
+                                                                    <h5>{{item.bctBankCode}}</h5>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-6 col-md-4 mb-4">
+                                                                <div class="form-group">
+                                                                    <label class="control-label">Bank Name</label>
+                                                                    <h5>{{item.bctAccountName}}</h5>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-6 col-md-4 mb-4">
+                                                                <div class="form-group">
+                                                                    <label class="control-label">Account Number</label>
+                                                                    <h5>{{item.bctAccountNumber}}</h5>
+                                                                </div>
+                                                            </div>
+
+                                                        </div><hr>
+
+                                                        <router-link :to="'/edit-bank-account/'+item.bctId"><button class="btn btn-outline-success" data-dismiss="modal">Edit Account</button></router-link>
+                                                    </div>
+                                                    
+                                                </div><!-- /.modal-content -->
+                                                
+                                            </div><!-- /.modal-dialog -->
+                                        </div>
                                     </tr>
                                     </tbody>
                                 </table>

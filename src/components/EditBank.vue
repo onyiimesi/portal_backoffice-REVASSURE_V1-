@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'editbank',
@@ -12,25 +13,53 @@
                 allbanks: {
                     bankCode: '',
                     bankName: '',
-                }
-                
+                },
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                role: '',
                 
             }
+        },
+
+        async mounted(){
+
+            this.role = localStorage.getItem('role');
+
+            const resu = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resu.data.result;
+
+            const result = await axios.get('api/Bank/detals/'+this.$route.params.bankCode, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.allbanks = result.data.result;
         },
 
         methods: {
             async editBank(){
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
                 
-                
-                if (!this.bankCode) {
-                    this.errors.push("Bank Code required.");
-                }
 
                 if (!this.bankName) {
-                    this.errors.push("Bank Name required.");
+                    toast.error("Bank Name required.");
                 }
                 
                 const response = await axios.put('api/Bank/editbank', {
@@ -46,27 +75,15 @@
 
                 if (response) {
                     
-                    this.message.push(response.data.message);
+                    toast.success(response.data.message);
 
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
   
             }
         },
 
-        async mounted(){
-
-            const result = await axios.get('api/Bank/detals/'+this.$route.params.bankCode, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
-                }
-            },);
-
-            // console.log(this.$route.params.bankCode)
-            console.log(result.data.result);
-            this.allbanks = result.data.result;
-        },
     }
 </script>
 <template>
@@ -89,11 +106,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Edit Bank</h4>
+                              <h4 class="mb-0">Edit Bank <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}}</span> // <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Edit Bank</li>
                                   </ol>
                               </div>
@@ -127,14 +144,14 @@
                                             </div>
                                         </div> -->
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="control-label">Bank Code</label>
                                                 <input class="form-control" type="text" v-model="allbanks.bankCode">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="control-label">Bank Name</label>
                                                 <input class="form-control" type="text" v-model="allbanks.bankName">
@@ -149,7 +166,7 @@
                                         </div> -->
 
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <button class="btn btn-outline-success mt-4">Edit</button>
                                     
                                 </form>
 

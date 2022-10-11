@@ -1,5 +1,6 @@
 <script>
     import axios from 'axios'
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'updatecustomer',
@@ -14,7 +15,9 @@
                 details: { 
 
                     id: '',
-                    fullNames: '',
+                    firstname: '',
+                    lastname: '',
+                    middlename: '',
                     mobileNumber1: '',
                     mobileNumber2: '',
                     emailAddress: '',
@@ -24,12 +27,33 @@
                     lgaCode: '',
                     stateCode: '',
                     customerTin: '',
-                }
+                },
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
                 
             }
         }, 
 
         async mounted(){
+
+            this.role = localStorage.getItem('role');
+
+            const resu = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resu.data.result;
 
             const resul = await axios.get('api/State/allstate', {
                 headers: {
@@ -65,43 +89,14 @@
 
                 this.errors = [];
                 this.message = [];
-
-                if (!this.details.fullNames) {
-                    this.errors.push("Full Name required.");
-                }
-
-                if (!this.details.mobileNumber1) {
-                    this.errors.push("Mobile Number required.");
-                }
-                if (!this.details.mobileNumber2) {
-                    this.errors.push("Mobile Number 2 required.");
-                }
-                if (!this.details.emailAddress) {
-                    this.errors.push("Email Adrress required.");
-                }
-                if (!this.details.bvn) {
-                    this.errors.push("BVN required.");
-                }
-                if (!this.details.nin) {
-                    this.errors.push("NIN required.");
-                }
-                if (!this.details.contactAddress) {
-                    this.errors.push("Contact Address required.");
-                }
-                if (!this.details.lgaCode) {
-                    this.errors.push("LGA Code required.");
-                }
-                if (!this.details.stateCode) {
-                    this.errors.push("State Code required.");
-                }
-                if (!this.details.customerTin) {
-                    this.errors.push("TIN Number required.");
-                }
+                const toast = useToast()
                 
                 const response = await axios.put('api/Customer/editcustomer', {
 
                     id: this.details.id,
-                    fullNames: this.details.fullNames,
+                    firstname: this.details.firstname,
+                    lastname: this.details.lastname,
+                    middlename: this.details.middlename,
                     mobileNumber1: this.details.mobileNumber1,
                     mobileNumber2: this.details.mobileNumber2,
                     emailAddress: this.details.emailAddress,
@@ -120,11 +115,11 @@
                 
 
                 if (response) {
-                    console.log(response);
-                    this.message.push(response.data.message);
+                    // console.log(response);
+                    toast.success(response.data.message);
 
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
                 
@@ -154,11 +149,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Update Details</h4>
+                              <h4 class="mb-0">Update Details <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Update Details</li>
                                   </ol>
                               </div>
@@ -189,105 +184,105 @@
                                     <div class="row">
                                         
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
-                                                <label class="control-label">Full Name</label>
-                                                <input class="form-control" type="text" v-model="details.fullNames">
+                                                <label class="control-label">First Name</label>
+                                                <input class="form-control" type="text" v-model="details.firstname">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
-                                                <label class="control-label">Customer Mobile Number</label>
-                                                <input class="form-control" type="text" v-model="details.mobileNumber1">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">Customer Mobile Number 2</label>
-                                                <input class="form-control" type="text" v-model="details.mobileNumber2">
+                                                <label class="control-label">Middle Name</label>
+                                                <input class="form-control" type="text" v-model="details.middlename">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Last Name</label>
+                                                <input class="form-control" type="text" v-model="details.lastname">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">Email Address</label>
                                                 <input class="form-control" type="text" v-model="details.emailAddress">
                                             </div>
                                         </div>
 
-                                    </div>
-
-                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Mobile Number</label>
+                                                <input class="form-control" type="text" v-model="details.mobileNumber1">
+                                            </div>
+                                        </div>
                                     
-                                        <div class="col-md-6">
+                                        
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Mobile Number 2</label>
+                                                <input class="form-control" type="text" v-model="details.mobileNumber2">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">BVN</label>
                                                 <input class="form-control" type="text" v-model="details.bvn">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">NIN</label>
                                                 <input class="form-control" type="text" v-model="details.nin">
                                             </div>
                                         </div>
 
-                                    </div>
-
-                                    <div class="row">
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">State Code</label>
-                                                <!-- <input class="form-control" type="text" v-model="details.stateCode"> -->
-
-                                                <select v-model="details.stateCode" @change="onChange($event)" class="form-control">
-                                                    <option>{{details.stateCode}}</option>
-                                                    <option v-for="org in allstate" :value="org.stateCode">{{org.stateCode}}</option>
-                                                    
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">LGA Code</label>
-                                                <!-- <input class="form-control" type="text" v-model="details.lgaCode"> -->
-
-                                                <select v-model="details.lgaCode" class="form-control" id="">
-                                                    <option>{{details.lgaCode}}</option>
-                                                    <option v-for="sub in alllga" :value="sub.lgaCode">{{sub.lgaCode}}</option>
-                                                    
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">Contact Address</label>
-                                                <input class="form-control" type="text" v-model="details.contactAddress">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">TIN Number</label>
                                                 <input class="form-control" type="text" v-model="details.customerTin">
                                             </div>
                                         </div>
 
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Contact Address</label>
+                                                <textarea class="form-control" v-model="details.contactAddress" cols="30" rows="5"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">State</label>
+                                                <!-- <input class="form-control" type="text" v-model="details.stateCode"> -->
+
+                                                <select v-model="details.stateCode" @change="onChange($event)" class="form-control">
+                                                    <option>{{details.stateCode}}</option>
+                                                    <option v-for="org in allstate" :value="org.stateCode">{{org.stateName}}</option>
+                                                    
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">LGA</label>
+                                                <!-- <input class="form-control" type="text" v-model="details.lgaCode"> -->
+
+                                                <select v-model="details.lgaCode" class="form-control" id="">
+                                                    <option>{{details.lgaCode}}</option>
+                                                    <option v-for="sub in alllga" :value="sub.lgaCode">{{sub.lgaName}}</option>
+                                                    
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <button class="btn btn-success mr-4 float-left">Update Customer</button>
+                                    <button class="btn btn-outline-success mt-4">Update</button>
                                 </form>
                                 <!-- <button class="btn btn-primary">Cancel</button> -->
                                 

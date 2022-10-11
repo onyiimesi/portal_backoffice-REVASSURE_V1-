@@ -79,12 +79,12 @@
           
 
           <!-- App Search-->
-          <form class="app-search d-none d-lg-block">
+          <!-- <form class="app-search d-none d-lg-block">
               <div class="position-relative">
                   <input type="text" class="form-control" value="" placeholder="Search...">
                   <span class="ri-search-line"></span>
               </div>
-          </form>
+          </form> -->
             
           
         </div>
@@ -92,11 +92,11 @@
         <div class="d-flex">
 
             <div class="dropdown d-inline-block d-lg-none ml-2">
-                <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
+                <!-- <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="ri-search-line"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0"
+                </button> -->
+                <!-- <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0"
                     aria-labelledby="page-header-search-dropdown">
                     
                     <form class="p-3">
@@ -109,15 +109,15 @@
                             </div>
                         </div>
                     </form>
-                </div>
+                </div> -->
             </div>
 
             <div class="dropdown d-inline-block">
-                <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                <!-- <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="ri-notification-3-line"></i>
                     <span class="noti-dot"></span>
-                </button>
+                </button> -->
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0"
                     aria-labelledby="page-header-notifications-dropdown">
                     <div class="p-3">
@@ -204,7 +204,7 @@
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <img class="rounded-circle header-profile-user" src="/frontend/assets/images/users/avatar-2.jpg"
                         alt="Header Avatar">
-                    <span class="d-none d-xl-inline-block ml-1 text-white" v-if="resp">{{resp}}</span>
+                    <span class="d-none d-xl-inline-block ml-1 text-white txt-white" v-if="resp">{{resp}}</span>
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
@@ -231,15 +231,15 @@
                 <ul class="navbar-nav">
 
                     <li class="nav-item">
-                        <router-link to="/dashboard" class="nav-link text-white">
+                        <router-link to="/dashboard" class="nav-link text-white txt-white">
                             <i class="ri-dashboard-line mr-2"></i> Dashboard
                             
                         </router-link>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-none text-white" href="#" id="topnav-components" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'BillingOfficer' || role === 'AccountAdmin'">
+                        <a class="nav-link dropdown-toggle arrow-none text-white txt-white" href="#" id="topnav-components" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'billing-oficer' || role === 'revenue-officer'">
                             <i class="ri-stack-line mr-2"></i>Transactions <div class="arrow-down"></div>
                         </a>
 
@@ -247,54 +247,50 @@
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div>
-                                        <router-link v-if="role === 'BillingOfficer' || role === 'AccountAdmin'" to="/search-transactions" class="dropdown-item">Search Transactions</router-link>
+                                        <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/search-transactions" class="dropdown-item">Search Transactions</router-link>
+                                    </div>
+                                    <div>
+                                        <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/view-bills" class="dropdown-item">Manage Bills</router-link>
+                                    </div>
+                                    <div>
+                                        <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/customer-search" class="dropdown-item">Manage Customer</router-link>
+                                    </div>
+                                    <div>
+                                        <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/payments" class="dropdown-item">Manage Payments</router-link>
                                     </div>
                                 </div>
                             </div>
-                            <div class="dropdown">
+                            <!-- <div class="dropdown">
                                 <a class="dropdown-item dropdown-toggle arrow-none" href="#" id="topnav-form"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'BillingOfficer' || role === 'AccountAdmin'">
-                                    Create Invoice <div class="arrow-down"></div>
+                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'billing-oficer' || role === 'revenue-officer'">
+                                    Manage Bill <div class="arrow-down"></div>
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="topnav-form">
-                                    <router-link to="/create-invoice" v-if="role === 'BillingOfficer' " class="dropdown-item">Create Invoice</router-link>
-                                    <router-link v-if="role === 'BillingOfficer' || role === 'AccountAdmin'" to="/view-invoices" class="dropdown-item">View Invoice Details</router-link>
+                                    <router-link to="/create-bill" v-if="role === 'billing-oficer' " class="dropdown-item">Create Bill</router-link>
+                                    <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/view-bills" class="dropdown-item">View Bill Details</router-link>
                                 </div>
-                            </div>
+                            </div> -->
 
-                            <div>
-                                <router-link to="/create-rebate" v-if="role === 'AccountAdmin' " class="dropdown-item">Create Rebate</router-link>
-                            </div>
+                            <!-- <div>
+                                <router-link to="/create-rebate" v-if="role === 'revenue-officer' " class="dropdown-item">Create Rebate</router-link>
+                            </div> -->
 
-                            <div class="dropdown">
+                            <!-- <div class="dropdown">
                                 <a class="dropdown-item dropdown-toggle arrow-none" href="#" id="topnav-form"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'BillingOfficer' || role === 'AccountAdmin'">
+                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'billing-oficer' || role === 'revenue-officer'">
                                     Customers <div class="arrow-down"></div>
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="topnav-form">
-                                    <router-link to="/create-customer" v-if=" role === 'BillingOfficer' " class="dropdown-item">Create Customer</router-link>
-                                    <router-link v-if="role === 'BillingOfficer' || role === 'AccountAdmin'" to="/customer-search" class="dropdown-item">Search Customer</router-link>
+                                    <router-link to="/create-customer" v-if=" role === 'billing-oficer' " class="dropdown-item">Create Customer</router-link>
+                                    <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/customer-search" class="dropdown-item">Search Customer</router-link>
                                 </div>
-                            </div>
-
-                            <div class="dropdown">
-                                <a class="dropdown-item dropdown-toggle arrow-none" href="#" id="topnav-form"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'BillingOfficer' || role === 'AccountAdmin'">
-                                    Payments <div class="arrow-down"></div>
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="topnav-form">
-                                    <router-link to="/payments" class="dropdown-item">Search Payment</router-link>
-                                    <router-link to="/payments" class="dropdown-item">Select Payment</router-link>
-                                    <router-link to="/payments" class="dropdown-item">View Payment Details</router-link>
-                                    <router-link to="/" v-if="role === 'AccountAdmin' " class="dropdown-item">Register Offline Payment</router-link>
-                                </div>
-                            </div>
+                            </div> -->
                         </div>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-none text-white" href="#" id="topnav-uielement" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'BillingOfficer' || role === 'AccountAdmin'">
+                        <a class="nav-link dropdown-toggle arrow-none text-white txt-white" href="#" id="topnav-uielement" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="role === 'billing-oficer' || role === 'revenue-officer'">
                             <i class="ri-pencil-ruler-2-line mr-2"></i>Reports <div class="arrow-down"></div>
                         </a>
 
@@ -306,64 +302,56 @@
                                     Transaction Reports <div class="arrow-down"></div>
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="topnav-form">
-                                    <router-link to="/invoices" class="dropdown-item">Invoice Reports</router-link>
+                                    <router-link to="/invoice-report" class="dropdown-item">Invoice Reports</router-link>
                                     <router-link to="/payments" class="dropdown-item">Payment Reports</router-link>
-                                    <router-link to="/" class="dropdown-item">Collection Reports</router-link>
+                                    <router-link to="/reports" class="dropdown-item">Collection Reports</router-link>
                                 </div>
                             </div>
                         </div>
                     </li>
 
-                    <li class="nav-item dropdown" v-if="role === 'AccountAdmin'">
-                        <a class="nav-link dropdown-toggle arrow-none text-white" href="#" id="topnav-uielement" role="button"
+                    <li class="nav-item dropdown" v-if="role === 'revenue-officer'">
+                        <a class="nav-link dropdown-toggle arrow-none text-white txt-white" href="#" id="topnav-uielement" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="ri-pencil-ruler-2-line mr-2"></i>Setup <div class="arrow-down"></div>
                         </a>
 
-                        <div class="dropdown-menu mega-dropdown-menu px-2 dropdown-mega-menu-xl"
+                        <div class="dropdown-menu mega-dropdown-menu px-2 dropdown-mega-menu-sm"
                             aria-labelledby="topnav-uielement">
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div>
-                                        <router-link v-if="role === 'AccountAdmin' " to="/setup-items" class="dropdown-item">Create Items</router-link>
+                                        <router-link v-if="role === 'revenue-officer' " to="/search-items" class="dropdown-item">Manage Items</router-link>
 
-                                        <router-link v-if="role === 'AccountAdmin' " to="/search-items" class="dropdown-item">Search Items</router-link>
+                                        <!-- <router-link v-if="role === 'revenue-officer' " to="/search-items" class="dropdown-item">Search Items</router-link> -->
                                         
-                                        <router-link v-if="role === 'AccountAdmin' " to="/setup-bank" class="dropdown-item">Manage Bank</router-link>
+                                        <router-link v-if="role === 'revenue-officer' " to="/view-banks" class="dropdown-item">Manage Bank</router-link>
 
-                                        <router-link v-if="role === 'AccountAdmin' " to="/view-banks" class="dropdown-item">View Bank</router-link>
+                                        <router-link v-if="role === 'revenue-officer' " to="/bank-accounts" class="dropdown-item">Manage Bank Account</router-link>
 
-                                        <router-link v-if="role === 'AccountAdmin' " to="/setup-bank-accounts" class="dropdown-item">Manage Bank Accounts</router-link>
+                                        <router-link v-if="role === 'revenue-officer' " to="/list-state" class="dropdown-item">Manage State</router-link>
 
-                                        <router-link v-if="role === 'AccountAdmin' " to="/bank-accounts" class="dropdown-item">View Bank Accounts</router-link>
-
+                                        <router-link v-if="role === 'revenue-officer' " to="/list-lga" class="dropdown-item">Manage LGA</router-link>
                                         
                                     </div>
                                 </div>
 
-                                <div class="col-lg-4">
+                                <!-- <div class="col-lg-4">
                                     <div>
                                         
+                                        
 
-                                        <router-link v-if="role === 'AccountAdmin' " to="/setup-state" class="dropdown-item">Setup State</router-link>
+                                        <router-link v-if="role === 'revenue-officer' " to="/manage-tax-types" class="dropdown-item">Manage Taxtype</router-link>
 
-                                        <router-link v-if="role === 'AccountAdmin' " to="/list-state" class="dropdown-item">List State</router-link>
-
-                                        <router-link v-if="role === 'AccountAdmin' " to="/setup-lga" class="dropdown-item">Setup LGA</router-link>
-
-                                        <router-link v-if="role === 'AccountAdmin' " to="/list-lga" class="dropdown-item">List LGA</router-link>
-
-                                        <router-link v-if="role === 'AccountAdmin' " to="/manage-tax-types" class="dropdown-item">Manage Taxtype</router-link>
-
-                                        <router-link v-if="role === 'AccountAdmin' " to="/list-tax-types" class="dropdown-item">List Taxtype</router-link>
+                                        <router-link v-if="role === 'revenue-officer' " to="/list-tax-types" class="dropdown-item">List Taxtype</router-link>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </li>
 
-                    <li v-if="role === 'PortalAdmin' || role === 'OrgAdmin' || role === '0' " class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-none text-white" href="#" id="topnav-uielement" role="button"
+                    <li v-if="role === '0' || role === 'org-admin' || role === 'portal-admin' || role === 'portal-admin' " class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle arrow-none text-white txt-white" href="#" id="topnav-uielement" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="ri-pencil-ruler-2-line mr-2"></i>Admin <div class="arrow-down"></div>
                         </a>
@@ -373,27 +361,23 @@
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div>
-                                        <router-link to="/setup-organization" v-if="role === '0' "  class="dropdown-item">Manage Organisations</router-link>
+                                        <router-link to="/list-organization" v-if="role === '0' || role === 'portal-admin' "  class="dropdown-item">Manage Organization</router-link>
 
-                                        <router-link to="/list-organization" v-if="role === '0' "  class="dropdown-item">List Organisations</router-link>
+                                        <!-- <router-link to="/list-organization" v-if="role === 'portal-admin' "  class="dropdown-item">List Organizations</router-link> -->
 
-                                        <router-link to="/sub-organization-setup" v-if="role === 'OrgAdmin' || role === '0' " class="dropdown-item">Manage Sub-Organisations</router-link>
+                                        <router-link to="/list-sub-organization" v-if="role === 'org-admin' " class="dropdown-item">Manage Sub-Organization</router-link>
 
-                                        <router-link to="/list-sub-organization" v-if="role === 'OrgAdmin' || role === '0' " class="dropdown-item">List Sub-Organisations</router-link>
-
-                                        <router-link to="/subunit-setup" v-if="role === 'OrgAdmin' || role === '0' " class="dropdown-item">Manage Units</router-link>
-
-                                        <router-link to="/list-units" v-if="role === 'OrgAdmin' || role === '0' " class="dropdown-item">List Units</router-link>
+                                        <!-- <router-link to="/list-sub-organization" v-if="role === 'org-admin' " class="dropdown-item">List Sub-Organizations</router-link> -->
                                         
-                                        <router-link to="/setup-users" v-if="role === 'OrgAdmin' " class="dropdown-item">Manage Users</router-link>
+                                        <router-link to="/view-users" v-if="role === 'org-admin' " class="dropdown-item">Manage User</router-link>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </li>
 
-                    <li v-if="role === 'PortalAdmin' || role === 'OrgAdmin' || role === '0' " class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-none text-white" href="#" id="topnav-uielement" role="button"
+                    <li v-if="role === 'portal-admin' || role === 'org-admin' || role === '0' " class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle arrow-none text-white txt-white" href="#" id="topnav-uielement" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="ri-pencil-ruler-2-line mr-2"></i>Settings <div class="arrow-down"></div>
                         </a>
@@ -403,7 +387,7 @@
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div>
-                                        <router-link v-if="role === 'OrgAdmin'" to="/api-keys" class="dropdown-item">API Keys</router-link>
+                                        <!-- <router-link v-if="role === 'org-admin'" to="/api-keys" class="dropdown-item">API Keys</router-link> -->
 
                                         <router-link to="/change-password" class="dropdown-item">Change Password</router-link>
                                     </div>
@@ -412,21 +396,22 @@
                         </div>
                     </li>
 
-                    <!-- <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-uielement" role="button"
+                    <!-- <li class="nav-item dropdown" v-if="role === 'org-admin' || role === 'revenue-officer'" >
+                        <a class="nav-link dropdown-toggle arrow-none text-white txt-white" href="#" id="topnav-uielement" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="ri-pencil-ruler-2-line mr-2"></i>Configuration <div class="arrow-down"></div>
+                            <i class="ri-pencil-ruler-2-line mr-2"></i>Workflow <div class="arrow-down"></div>
                         </a>
 
-                        <div class="dropdown-menu mega-dropdown-menu px-2 dropdown-mega-menu-xl"
+                        <div class="dropdown-menu mega-dropdown-menu px-2 dropdown-mega-menu-sm"
                             aria-labelledby="topnav-uielement">
                             <div class="row">
-                                <div class="col-lg-4">
+                                <div class="col-md-4">
                                     <div>
-                                        <router-link to="/manage-bank-accounts" class="dropdown-item">Manage Bank Accounts</router-link>
+                                        <router-link v-if="role === 'org-admin'" to="/setup-workflow" class="dropdown-item">Setup</router-link>
 
+                                        <router-link v-if="role === 'org-admin'" to="/approve-workflow" class="dropdown-item">Approval</router-link>
 
-                                        <router-link to="/manage-tax-types" class="dropdown-item">Manage Tax Types</router-link>
+                                        <router-link v-if="role === 'revenue-officer'" to="/workflow-entry" class="dropdown-item">Entry</router-link>
                                     </div>
                                 </div>
                             </div>
@@ -435,7 +420,7 @@
                     </li> -->
 
                     <li class="nav-item">
-                        <a href="javascript:void(0)" @click="handleClick" class="nav-link text-white">
+                        <a href="javascript:void(0)" @click="handleClick" class="nav-link text-white txt-white">
                             <i class=" ri-shut-down-line"></i> Logout
                         </a>
                     </li>
@@ -447,6 +432,10 @@
 </div>
 </template>
 
-<style scoped>
-
+<style>
+    @media (max-width: 991px) {
+        .txt-white{
+            color: #333 !important;
+        }
+    }
 </style>

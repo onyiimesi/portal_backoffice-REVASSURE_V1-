@@ -1,8 +1,9 @@
 <script>
     import axios from 'axios'
+    import { useToast } from "vue-toastification";
 
     export default{
-        name: 'setupusers',
+        name: 'setupstate',
 
         data(){
             return{
@@ -12,22 +13,49 @@
                 stateCode: '',
                 stateName: '',
 
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                role: '',
+
             }
         },  
+
+        async mounted(){
+
+            this.role = localStorage.getItem('role');
+
+            const resu = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resu.data.result;
+
+        },
 
         methods: {
             async handleState(){
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
                 
                 
                 if (!this.stateCode) {
-                    this.errors.push("State Code required.");
+                    toast.error("State Code required.");
                 }
 
                 if (!this.stateName) {
-                    this.errors.push("State Name required.");
+                    toast.error("State Name required.");
                 }
                 
                 
@@ -44,13 +72,13 @@
                 
 
                 if (response) {
-                    console.log(response);
-                    this.message.push(response.data.message);
+                    // console.log(response);
+                    toast.success(response.data.message);
 
                     this.stateCode = "";
                     this.stateName = "";
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
                 
@@ -79,12 +107,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Setup State</h4>
+                              <h4 class="mb-0">Create State <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Setup State</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Create State</li>
                                   </ol>
                               </div>
 
@@ -111,22 +139,22 @@
                                 </div>
                                 <form @submit.prevent="handleState">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">State Code</label>
+                                                <label class="control-label">State Code <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="stateCode">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">State Name</label>
+                                                <label class="control-label">State Name <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="stateName">
                                             </div>
                                         </div>
 
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button> 
+                                    <button class="btn btn-outline-success mt-3">Create</button> 
                                 </form>
                                 <!-- <button class="btn btn-primary float-left">Cancel</button> -->
 

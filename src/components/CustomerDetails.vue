@@ -9,13 +9,29 @@
                 errors: [],
                 message: [],
 
+                invoice: [],
+
                 customerDetails: {
 
                     customerCode: '',
                     fullNames: '',
                     id: '',
                     fullNames: '',
-                }
+                },
+
+                role:  '',
+
+                customerDet: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
                 
                 
             }
@@ -23,16 +39,36 @@
 
         async mounted(){
 
-            const result = await axios.get('api/Customer/details/'+this.$route.params.id, {
+            this.role = localStorage.getItem('role');
+
+            const resul = await axios.get('api/Users/profile', {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
             },);
 
-            // console.log(this.$route.params.bankCode)
-            // console.log(result);
+            this.customerDet = resul.data.result;
+
+            const result = await axios.get('api/Customer/customer/'+this.$route.params.customerCode, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
             this.customerDetails = result.data.result;
+
+            const results = await axios.get('api/Invoice/customerinvoices/'+this.$route.params.customerCode, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.invoice = results.data.result;
         },
+
+        computed:{
+            convertDate(date) {
+                let n = 0; return date.replace(/_+/g, () => "// ::"[n++]);
+            }
+        }
     }
 </script>
 <template>
@@ -55,11 +91,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Customer Details</h4>
+                              <h4 class="mb-0">Customer Details <br> <span style="font-size: 14px;font-weight: 500;">{{customerDet.organizationCode}} //  {{customerDet.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDet.lastName}} {{customerDet.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Customer Details</li>
                                   </ol>
                               </div>
@@ -70,27 +106,11 @@
                   <!-- end page title -->
 
                     <div class="row mb-4">
-                        <div class="col-md-8">
-                            <div class="card"> 
-                                <div class="card-body">
-                                    <h3 class="pb-4">{{customerDetails.firstname}} {{customerDetails.lastname}}</h3>
-
-                                    <h5 class="pb-3" style="font-size: 18px;">{{customerDetails.contactAddress}}</h5>
-                                    <p class="pb-3" style="font-size: 16px;">
-                                        {{customerDetails.customerCode}}
-                                    </p>
-                                    <p class="pb-3" style="font-size: 16px;">
-                                        {{customerDetails.mobileNumber1}} - {{customerDetails.emailAddress}}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="col-md-4">
-                            <div class="card">
+                            <div class="card" v-if="this.role == 'billing-oficer'">
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <router-link :to="'/create-user-invoice/'+customerDetails.id" style="color: #000;font-weight: bold;font-size: 14px;text-transform: uppercase;">Create Invoice</router-link>
+                                        <router-link :to="'/create-user-bill/'+customerDetails.id" style="color: #000;font-weight: bold;font-size: 14px;text-transform: uppercase;">Create Bill</router-link>
                                     </div>
 
                                     <div class="mb-3">
@@ -102,25 +122,88 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="row mb-4">
-                        <div class="col-md-12">
+                            <div class="card mb-4"> 
+                                <div class="card-body">
+                                    <div>
+                                        <label for="">Customer Number</label>
+                                        <h3 style="font-size: 20px;">
+                                            {{customerDetails.customerCode}}
+                                        </h3>
+                                    </div><hr>
+
+                                    <div>
+                                        <label for="">Full Name</label>
+                                        <h3 style="font-size: 20px;">{{customerDetails.firstname}} {{customerDetails.lastname}}</h3>
+                                    </div><hr>
+
+                                    <div>
+                                        <label for="">Address</label>
+                                        <h3 style="font-size: 20px;">{{customerDetails.contactAddress}}</h3>
+                                    </div><hr>
+                                    
+                                    <div>
+                                        <label for="">Contact Details</label>
+                                        <h3 style="font-size: 20px;">
+                                            {{customerDetails.emailAddress}} <br>{{customerDetails.mobileNumber1}}
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-8">
                             <div class="card">
-                                <div class="card-header bg-primary">
-                                    <h3 class="text-white">Payments</h3>
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="text-dark">Recent Bills</h4>
                                 </div>
                                 <div class="card-body table-responsive">
                                     <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                         <thead>
                                         <tr>
                                             <th>S/N</th>
-                                            <th>INVOICE CODE</th>
-                                            <th>PAYMENT DATE</th>
-                                            <th>AMOUNT PAID</th>
-                                            <th>PAYMENT MODE</th>
-                                            <th>ACTION</th>
+                                            <th>#Invoice</th>
+                                            <th>Invoice Date</th>                                         
+                                            <th>Amount Due</th>
+                                            <th>Payment Mode</th>
+                                            <th>Action</th>
+                                            <!-- <th>BALANCE</th> -->
+                                        </tr>
+                                        </thead>
+
+
+                                        <tbody>
+                                        <tr v-for="list in invoice">
+                                            <td>{{list.id}}</td>
+                                            <td>{{list.invoiceCode}}</td>
+                                            <td>{{list.invoiceDate}}</td>
+                                            <td>{{list.invoiceAmount}}</td>
+                                            <td>25,000</td>
+                                            <td><button class="btn btn-outline-success btn-sm">View Details</button></td>
+                                        </tr>
+                                        <!-- <tr class="text-center">
+                                            <td colspan="7"><h3 style="color: red;">Customer Not Found!</h3></td>
+                                        </tr> -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="text-dark">Recent Payments</h4>
+                                </div>
+                                <div class="card-body table-responsive">
+                                    <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                        <thead>
+                                        <tr>
+                                            <th>S/N</th>
+                                            <th>#Invoice</th>
+                                            <th>Payment Date</th>
+                                            <th>Amount Paid</th>
+                                            <th>Payment Mode</th>
+                                            <th>Action</th>
                                             <!-- <th>BALANCE</th> -->
                                         </tr>
                                         </thead>
@@ -133,7 +216,7 @@
                                             <td>22/04/22</td>
                                             <td>35,000</td>
                                             <td>In-00921</td>
-                                            <td><button class="btn btn-success">View Details</button></td>
+                                            <td><button class="btn btn-outline-success btn-sm">View Details</button></td>
                                         </tr>
                                         <!-- <tr class="text-center">
                                             <td colspan="7"><h3 style="color: red;">Customer Not Found!</h3></td>
@@ -142,46 +225,7 @@
                                     </table>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header bg-primary">
-                                    <h3 class="text-white">Invoices</h3>
-                                </div>
-                                <div class="card-body table-responsive">
-                                    <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                        <thead>
-                                        <tr>
-                                            <th>S/N</th>
-                                            <th>INVOICE CODE</th>
-                                            <th>INVOICE DATE</th>                                         
-                                            <th>AMOUNT DUE</th>
-                                            <th>PAYMENT MODE</th>
-                                            <th>ACTION</th>
-                                            <!-- <th>BALANCE</th> -->
-                                        </tr>
-                                        </thead>
-
-
-                                        <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Cash</td>
-                                            <td>22/04/22</td>
-                                            <td>35,000</td>
-                                            <td>25,000</td>
-                                            <td><button class="btn btn-success">View Details</button></td>
-                                        </tr>
-                                        <!-- <tr class="text-center">
-                                            <td colspan="7"><h3 style="color: red;">Customer Not Found!</h3></td>
-                                        </tr> -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
                         </div>
                     </div>
 

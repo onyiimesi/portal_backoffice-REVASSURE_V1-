@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'editorg',
@@ -12,14 +13,42 @@
                 allorg: {
                     organisationCode: '',
                     organisationName: '',
-                }
+                    organisationEmail: '',
+                    organisationPhoneNumber: '',
+                    organisationAddress: '',
+                    organisationWebsite: '',
+                },
+
+                role: '',
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
             
             }
         },
 
         async mounted(){
 
-            const result = await axios.get('api/Organisation/details/'+this.$route.params.id, {
+            this.role = localStorage.getItem('role');
+
+            const resul = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+
+            this.customerDetails = resul.data.result;
+
+            const result = await axios.get('api/Organisation/details/'+this.$route.params.organisationCode, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
@@ -33,20 +62,36 @@
 
                 this.errors = [];
                 this.message = [];
+                const toast = useToast()
 
-                
-                
-                if (!this.allorg.organisationCode) {
-                    this.errors.push("Organisation Code required.");
-                }
 
                 if (!this.allorg.organisationName) {
-                    this.errors.push("Organisation Name required.");
+                    toast.error("Organisation Name required.");
+                }
+
+                if (!this.allorg.organisationEmail) {
+                    toast.error("Email Address required.");
+                }
+
+                if (!this.allorg.organisationPhoneNumber) {
+                    toast.error("Phone Number required.");
+                }
+
+                if (!this.allorg.organisationAddress) {
+                    toast.error("Office Address required.");
+                }
+
+                if (!this.allorg.organisationWebsite) {
+                    toast.error("Website required.");
                 }
                 
                 const response = await axios.put('api/Organisation/edit', {
-                    organisationCode: this.allorg.organisationCode,
+                    organisationCode: this.customerDetails.organizationCode,
                     organisationName: this.allorg.organisationName,
+                    emailAddress: this.allorg.organisationEmail,
+                    phoneNumber: this.allorg.organisationPhoneNumber,
+                    officeAddress: this.allorg.organisationAddress,
+                    website: this.allorg.organisationWebsite,
                     
                 }, {
                 headers: {
@@ -57,10 +102,10 @@
 
                 if (response) {
                     
-                    this.message.push(response.data.message);
+                    toast.success(response.data.message);
 
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
                 
@@ -91,11 +136,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Edit Organisation</h4>
+                              <h4 class="mb-0">Edit Organization <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}}</span> // <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Edit Organisation</li>
                                   </ol>
                               </div>
@@ -106,45 +151,64 @@
                   <!-- end page title -->
 
                   
-                  <div class="row">
+                  <div class="row ssss">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body table-responsive">
                                 <div class="alert alert-danger" v-if="errors.length">
-                                    <b>Please correct the following error(s):</b>
-                                    <ul>
-                                        <li v-for="error in errors">{{ error }}</li>
-                                    </ul>
+                                    <p v-for="error in errors">{{ error }}</p>
                                 </div>
 
                                 <div class="alert alert-success" v-if="message.length">
                                     <strong v-for="msg in message">{{ msg }}</strong>
                                 </div>
                                 <form @submit.prevent="editOrg">
-                                    <div class="row">
-                                        <!-- <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">Organization</label>
-                                                <input class="form-control" type="text" >
-                                            </div>
-                                        </div> -->
-
+                                    <div>
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="control-label">Organisation Code</label>
-                                                <input class="form-control" type="text" v-model="allorg.organisationCode">
+                                                
+                                                <input class="form-control" type="hidden" v-model="customerDetails.organizationCode">
                                             </div>
                                         </div>
-
-                                        <div class="col-md-12">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">Organisation Name</label>
                                                 <input class="form-control" type="text" v-model="allorg.organisationName">
                                             </div>
                                         </div>
 
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Email Address</label>
+                                                <input class="form-control" type="text" v-model="allorg.organisationEmail">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Phone Number</label>
+                                                <input class="form-control" type="text" v-model="allorg.organisationPhoneNumber">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Office Address</label>
+                                                <input class="form-control" type="text" v-model="allorg.organisationAddress">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Website</label>
+                                                <input class="form-control" type="text" v-model="allorg.organisationWebsite">
+                                            </div>
+                                        </div>
+
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <button class="btn btn-outline-success mt-4">Edit</button>
                                     
                                 </form>
 
@@ -182,6 +246,6 @@
 
   </router-view>
 </template>
-<style scoped>
-
+<style>
+    
 </style>

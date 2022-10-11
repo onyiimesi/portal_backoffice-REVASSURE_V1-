@@ -1,5 +1,6 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'editstate',
@@ -13,14 +14,37 @@
                 states: {
                     id: '',
                     stateName: '', 
-                }
+                },
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                role: '',
 
             }
         },
 
         async mounted(){
 
-            const result = await axios.get('api/State/state/'+this.$route.params.id, {
+            this.role = localStorage.getItem('role');
+
+            const resu = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resu.data.result;
+
+            const result = await axios.get('api/State/state/'+this.$route.params.stateCode, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
@@ -34,16 +58,7 @@
 
                 this.errors = [];
                 this.message = [];
-
-                
-                
-                if (!this.states.id) {
-                    this.errors.push("ID required.");
-                }
-
-                if (!this.states.stateName) {
-                    this.errors.push("State Name required.");
-                }
+                const toast = useToast()
                 
                 const response = await axios.put('api/State/editstate', {
                     id: this.states.id,
@@ -58,10 +73,10 @@
 
                 if (response) {
                     
-                    this.message.push(response.data.message);
+                    toast.success(response.data.message);
 
                 }else{
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
                 
@@ -91,11 +106,11 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Edit State</h4>
+                              <h4 class="mb-0">Edit State <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}}</span> // <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
                                       <li class="breadcrumb-item active">Edit State</li>
                                   </ol>
                               </div>
@@ -138,7 +153,7 @@
                                         </div>
 
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <button class="btn btn-outline-success mt-3">Edit</button>
                                     
                                 </form>
 

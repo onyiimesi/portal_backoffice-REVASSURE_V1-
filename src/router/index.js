@@ -36,8 +36,25 @@ const router = createRouter({
       component: () => import('../views/ResetPasswordView.vue')
     },
     {
-      path: '/setup-organization',
-      name: 'setuporganization',
+      path: '/verify-token',
+      name: 'verifytoken',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/VerifyTokenView.vue')
+    },
+    {
+      path: '/password-reset',
+      name: 'passwordreset',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/PasswordResetView.vue')
+    },
+
+    {
+      path: '/create-organization',
+      name: 'createorganization',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -52,7 +69,7 @@ const router = createRouter({
       component: () => import('../views/ListOrgView.vue')
     },
     {
-      path: '/edit-org/:id',
+      path: '/edit-org/:organisationCode',
       name: 'editorg',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -60,7 +77,7 @@ const router = createRouter({
       component: () => import('../views/EditOrgView.vue')
     },
     {
-      path: '/sub-organization-setup',
+      path: '/create-sub-organization',
       name: 'suborganizationsetup',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -76,7 +93,7 @@ const router = createRouter({
       component: () => import('../views/ListSubOrgView.vue')
     },
     {
-      path: '/edit-suborg/:id',
+      path: '/edit-suborg/:subOrganisationCode',
       name: 'editsuborg',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -84,31 +101,7 @@ const router = createRouter({
       component: () => import('../views/EditSubOrgView.vue')
     },
     {
-      path: '/subunit-setup',
-      name: 'subunitsetup',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/SetupSubUnitView.vue')
-    },
-    {
-      path: '/list-units',
-      name: 'listunits',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/ListUnitView.vue')
-    },
-    {
-      path: '/edit-unit/:unitID',
-      name: 'editunit',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/EditUnitView.vue')
-    },
-    {
-      path: '/setup-users',
+      path: '/create-user',
       name: 'setupusers',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -124,7 +117,15 @@ const router = createRouter({
       component: () => import('../views/ViewUsersView.vue')
     },
     {
-      path: '/setup-bank',
+      path: '/edit-user/:id',
+      name: 'edituser',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/EditUserView.vue')
+    },
+    {
+      path: '/create-bank',
       name: 'setupbanks',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -172,7 +173,49 @@ const router = createRouter({
       component: () => import('../views/SetupWorkflowView.vue')
     },
     {
-      path: '/setup-items',
+      path: '/approve-workflow',
+      name: 'approveworkflow',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ApproveWorkflowView.vue')
+    },
+    {
+      path: '/workflow-entry',
+      name: 'workflowentry',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/EntryWorkflowView.vue')
+    },
+    {
+      path: '/edit-workflow/:workFlowItemID',
+      name: 'editworkflow',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/EditWorkflowView.vue')
+    },
+
+    {
+      path: '/approve-entry/:workFlowEntryID',
+      name: 'approveentry',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ApproveEntryView.vue')
+    },
+    {
+      path: '/reject-entry/:workFlowEntryID',
+      name: 'rejectentry',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/RejectEntryView.vue')
+    },
+
+    {
+      path: '/create-items',
       name: 'setupitems',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -188,7 +231,7 @@ const router = createRouter({
       component: () => import('../views/SearchItemsView.vue')
     },
     {
-      path: '/edit-item/:itemCode',
+      path: '/edit-item/:itemOrgCode',
       name: 'edititem',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -220,7 +263,7 @@ const router = createRouter({
       component: () => import('../views/CustomerSearchView.vue')
     },
     {
-      path: '/customer-details/:id',
+      path: '/customer-details/:customerCode',
       name: 'customerdetails',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -252,7 +295,7 @@ const router = createRouter({
       component: () => import('../views/GenerateBillView.vue')
     },
     {
-      path: '/create-invoice',
+      path: '/create-bill',
       name: 'createinvoice',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -260,7 +303,7 @@ const router = createRouter({
       component: () => import('../views/CreateInvoiceView.vue')
     },
     {
-      path: '/create-user-invoice/:id',
+      path: '/create-user-bill/:id',
       name: 'createuserinvoice',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -268,7 +311,7 @@ const router = createRouter({
       component: () => import('../views/CreateUserInvoiceView.vue')
     },
     {
-      path: '/view-invoices',
+      path: '/view-bills',
       name: 'viewinvoices',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -276,7 +319,7 @@ const router = createRouter({
       component: () => import('../views/ViewInvoiceView.vue')
     },
     {
-      path: '/invoices/:invoiceCode',
+      path: '/bills/:invoiceCode',
       name: 'invoices',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -290,14 +333,6 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/PaymentView.vue')
-    },
-    {
-      path: '/items',
-      name: 'items',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/ItemsView.vue')
     },
     {
       path: '/bank-accounts',
@@ -316,7 +351,7 @@ const router = createRouter({
       component: () => import('../views/EditBankAccountView.vue')
     },
     {
-      path: '/setup-bank-accounts',
+      path: '/create-bank-account',
       name: 'setupbankaccounts',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -356,7 +391,7 @@ const router = createRouter({
       component: () => import('../views/EditTaxView.vue')
     },
     {
-      path: '/setup-state',
+      path: '/create-state',
       name: 'setupstate',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -372,7 +407,7 @@ const router = createRouter({
       component: () => import('../views/ListStateView.vue')
     },
     {
-      path: '/edit-state/:id',
+      path: '/edit-state/:stateCode',
       name: 'editstate',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -380,7 +415,7 @@ const router = createRouter({
       component: () => import('../views/EditStateView.vue')
     },
     {
-      path: '/setup-lga',
+      path: '/create-lga',
       name: 'setuplga',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -396,12 +431,45 @@ const router = createRouter({
       component: () => import('../views/ListLgaView.vue')
     },
     {
-      path: '/edit-lga/:id',
+      path: '/edit-lga/:lgaCode',
       name: 'editlga',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/EditLgaView.vue')
+    },
+
+    {
+      path: '/change-password',
+      name: 'changepassword',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ChangePasswordView.vue')
+    },
+    {
+      path: '/search-transactions',
+      name: 'searchtransactions',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/SearchTransactionsView.vue')
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ReportsView.vue')
+    },
+    {
+      path: '/invoice-report',
+      name: 'invoicereport',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/InvoiceReportView.vue')
     },
   ]
 })

@@ -1,6 +1,7 @@
 <script>
 
     import axios from 'axios'
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'setuporganization',
@@ -9,8 +10,24 @@
             return{
                 errors: [],
                 message: [],
-                organisationCode: '',
-                organisationName: '',
+
+                allorg: [],
+                
+                org: {
+                    organisationCode: '',
+                    organisationName: '',
+                    parentOrganizationCode: '',
+                    officeAddress: '',
+                    emailAddress: '',
+                    website: '',
+                    phoneNumber: '',
+                },
+
+                suborg: {
+                    subOrganisationCode: '',
+                    subOrganisationName: '',
+                    organisationCode: '',
+                },
 
                 emailAddress: '',
                 subOrganisationCode: '',
@@ -22,98 +39,183 @@
                 gender: '',
                 password: '',
                 role: '',
+
+                allroles: [],
+
+                customerDetails: {
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
             }
-        },  
+        }, 
+
+        validations () {
+            return {
+                password: {
+                    required,
+ 
+                },
+                confirmPassword: { required, sameAsPassword: sameAs(this.password) }
+            }
+        },
+        
+        async mounted(){
+
+            this.role = localStorage.getItem('role');
+
+            const resultss = await axios.get('api/Users/profile',{
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            this.customerDetails = resultss.data.result;
+
+            const result = await axios.get('api/roles/allroles', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.allroles = result.data.result;
+
+            const results = await axios.get('api/Organisation/organizations', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.allorg = results.data.result;
+        },
 
         methods: {
             async handleOrg(){
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
                 
+                if (!this.org.parentOrganizationCode) {
+                    toast.error("Parent Organization required.");
+                }
                 
-                if (!this.organisationCode) {
-                    this.errors.push("Organisation Code required.");
+                if (!this.org.organisationCode) {
+                    toast.error("Organization Code required.");
                 }
 
-                if (!this.organisationName) {
-                    this.errors.push("Organisation Name required.");
+                if (!this.org.organisationName) {
+                    toast.error("Organization Name required.");
                 }
 
-                if (!this.emailAddress) {
-                    this.errors.push("Email Address required.");
+                if (!this.org.emailAddress) {
+                    toast.error("Organization Email Address required.");
                 }
 
-                if (!this.organizationCode) {
-                    this.errors.push("Organisation Code required.");
+                if (!this.org.phoneNumber) {
+                    toast.error("Mobile Number required.");
+                }
+
+                if (!this.org.website) {
+                    toast.error("Website required.");
+                }
+
+                if (!this.org.officeAddress) {
+                    toast.error("Office Address required.");
                 }
 
                 if (!this.firstName) {
-                    this.errors.push("Firstname required.");
+                    toast.error("Firstname required.");
                 }
 
                 if (!this.lastName) {
-                    this.errors.push("Lastname required.");
+                    toast.error("Lastname required.");
                 }
 
-                if (!this.password) {
-                    this.errors.push("Password required.");
-                }
-
-                if (!this.role) {
-                    this.errors.push("Role required.");
-                }
-                
-                
-                
-                const response = await axios.post('api/Organisation/addorganization', {
-                    organisationCode: this.organisationCode,
-                    organisationName: this.organisationName
-                    
-                }, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
-                    }
-                },);
-
-                const resp = await axios.post('api/Users/adduser', {
-                    emailAddress: this.emailAddress,
-                    subOrganisationCode: this.subOrganisationCode,
-                    organizationCode: this.organizationCode,
-                    unit: this.unit,
-                    firstName: this.firstName,
-                    lastName: this.lastName,
-                    middleName: this.middleName,
-                    gender: this.gender,
-                    password: this.password,
-                    role: this.role,
-                    
-                }, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
-                    }
-                },);
-                
-
-                if (response) {
-                    console.log(response);
-                    this.message.push(response.data.message);
-
-                    this.organisationCode = "";
-                    this.organisationName = "";
-
-                    this.emailAddress = "";
-                    this.organizationCode = "";
-                    this.firstName = "";
-                    this.lastName = "";
-                    this.password = "";
-                    this.role = "";
+                if (!this.emailAddress) {
+                    toast.error("Administrator Email Address required.");
                 }else{
-                    this.errors.push("Incorrect Parameter");
+
+                    const response = await axios.post('api/Organisation/addorganization', {
+                    organisationCode: this.org.organisationCode,
+                    organisationName: this.org.organisationName,
+                    parentOrganizationCode: this.org.parentOrganizationCode,
+                    officeAddress: this.org.officeAddress,
+                    emailAddress: this.org.emailAddress,
+                    website: this.org.website,
+                    phoneNumber: this.org.phoneNumber,
+                        
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },);
+
+                    await axios.post('api/SubOrganisation/addsuborganization', {
+                        subOrganisationCode: "SUB"+this.org.organisationCode,
+                        subOrganisationName: "SUB "+this.org.organisationName,
+                        organisationCode: this.org.organisationCode
+                        
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },);
+
+                    await axios.post('api/Users/adduser', {
+                        emailAddress: this.emailAddress,
+                        subOrganisationCode: "SUB"+this.org.organisationCode,
+                        organizationCode: this.org.organisationCode,
+                        unit: this.unit,
+                        firstName: this.firstName,
+                        lastName: this.lastName,
+                        middleName: this.middleName,
+                        gender: this.gender,
+                        password: "password1",
+                        role: "org-admin",
+                        
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },);
+                    
+
+                    if (response) {
+                        // console.log(response);
+                        toast.success(response.data.message);
+
+                        this.org.organisationCode = "";
+                        this.org.organisationName = "";
+                        this.org.parentOrganizationCode = "";
+                        this.org.officeAddress = "";
+                        this.org.emailAddress = "";
+                        this.org.website = "";
+                        this.org.phoneNumber = "";
+
+                        this.suborg.subOrganisationCode = "";
+                        this.suborg.subOrganisationName = "";
+                        this.suborg.organisationCode = "";
+
+                        this.emailAddress = "";
+                        this.organizationCode = "";
+                        this.subOrganisationCode = "";
+                        this.firstName = "";
+                        this.lastName = "";
+                        this.password = "";
+                        this.confirmPassword = "";
+                        this.role = "";
+                    }else{
+                        toast.error("Incorrect Parameter");
+                    }
+
                 }
+                
 
                 
-                 
+
+                
             }
         }
     }
@@ -138,12 +240,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Setup Organization</h4>
+                              <h4 class="mb-0">Create Organization <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Setup Organization</li>
+                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Home</a></li>
+                                      <li class="breadcrumb-item active">Create Organization</li>
                                   </ol>
                               </div>
 
@@ -158,13 +260,12 @@
                         <div class="card">
                             <div class="card-body">
 
-                                <h4 class="card-title">Setup Organization</h4>
+                                <h4 class="card-title">Organization Information</h4>
 
                                 <div class="alert alert-danger" v-if="errors.length">
-                                    <b>Please correct the following error(s):</b>
-                                    <ul>
-                                        <li v-for="error in errors">{{ error }}</li>
-                                    </ul>
+
+                                    <span v-for="error in errors">{{ error }}</span>
+
                                 </div>
 
                                 <div class="alert alert-success" v-if="message.length">
@@ -172,102 +273,88 @@
                                 </div>
                                 <form @submit.prevent="handleOrg">
                                     <div class="row mt-4">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">Organization Code</label>
-                                                <input class="form-control" type="text" v-model="organisationCode">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label class="control-label">Organization Name</label>
-                                                <input class="form-control" type="text" v-model="organisationName">
-                                            </div>
-                                        </div>
-                                    
-                                    </div><hr>
-                                    
-                                    <div>
-                                        <h4 class="card-title">Setup Org Admin</h4>
-                                    </div>
-                                    <div class="row mt-3">
-                                       <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">First Name</label>
-                                                <input class="form-control" type="text" v-model="firstName">
-                                            </div>
-                                        </div>
-                                        
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label class="control-label">Last Name</label>
-                                                <input class="form-control" type="text" v-model="lastName">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Email Address</label>
-                                                <input class="form-control" type="text" v-model="emailAddress">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                       <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Organization Code</label>
-                                                <input class="form-control" type="text" v-model="organizationCode">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Role</label>
-                                                <input class="form-control" type="text" v-model="role">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Password</label>
-                                                <input class="form-control" type="password" v-model="password">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <!-- <label class="control-label">Unit</label> -->
-                                                <input class="form-control" type="hidden" v-model="unit">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <!-- <label class="control-label">Middle Name</label> -->
-                                                <input class="form-control" type="hidden" v-model="middleName">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <!-- <label class="control-label">Gender</label> -->
-                                                <select v-model="gender" class="form-control" style="display: none;">
-                                                    <option>Choose</option>
-                                                    <option value="male">Male</option>
-                                                    <option value="female">Female</option>
+                                                <label class="control-label">Parent Organization <span class="text-danger">*</span></label>
+                                                <select v-model="org.parentOrganizationCode" class="form-control">
+                                                    <option v-for="org in allorg" :value="org.organisationCode">{{org.organisationCode}}</option>
+                                                    
                                                 </select>
                                             </div>
                                         </div>
 
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <!-- <label class="control-label">Sub-Organization Code</label> -->
-                                                <input class="form-control" type="hidden" v-model="subOrganisationCode">
+                                                <label class="control-label">Organization Code <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="org.organisationCode">
                                             </div>
                                         </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Organization Name <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="org.organisationName">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Email Address <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="org.emailAddress">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Mobile Number <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="org.phoneNumber">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Website <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="org.website">
+                                            </div>
+                                        </div>
+                                    
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Address <span class="text-danger">*</span></label>
+                                                <textarea class="form-control"  v-model="org.officeAddress" cols="30" rows="5"></textarea>
+                                            </div>
+                                        </div>
+                                    </div><hr>
+                                    
+                                    <div class="mt-5 mb-4">
+                                        <h4 class="card-title">Organization Administrator Information</h4>
+                                    </div>
+                                    <div class="row">
+                                       <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">First Name <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="firstName">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Last Name <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="lastName">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Email Address <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" v-model="emailAddress">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <button class="btn btn-outline-success mt-4 float-left">Create</button>
                                 </form>
 
                             </div>

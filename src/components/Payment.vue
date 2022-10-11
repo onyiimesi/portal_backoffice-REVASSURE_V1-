@@ -1,6 +1,46 @@
-<script setup>
+<script>
 
-</script>
+    import { mapGetters } from 'vuex';
+  
+    import axios from "axios"
+    
+    export default{
+      name: 'Nav',
+      name: 'dashboard',
+      name: 'autologout',
+  
+      data: function(){
+          return{
+
+            customerDetails: {
+
+                emailAddress: '',
+                subOrganisationCode: '',
+                organizationCode: '',
+                firstName: '',
+                lastName: '',
+                middleName: '',
+                gender: '',
+                unit: '',
+            },
+          }
+      },
+  
+      async mounted(){
+        this.role = localStorage.getItem('role');
+
+        const result = await axios.get('api/Users/profile',{
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            }
+        });
+        this.customerDetails = result.data.result;
+  
+      },
+  
+  
+    }
+  </script>
 <template>
 
   <!-- Begin page -->
@@ -21,12 +61,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Payments Report</h4>
+                              <h4 class="mb-0">Bills Payments Report <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Payments Report</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Bills Payments Report</li>
                                   </ol>
                               </div>
 
@@ -39,74 +79,100 @@
                   <div class="row">
                     <div class="col-12">
                         <div class="card">
+                            <div class="card-body">
+                                <form @submit.prevent="billsreport">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Payment Date Range</label>
+                                                <input class="form-control mb-4" type="date">
+
+                                                <label class="control-label">Bill Number</label>
+                                                <input class="form-control" type="text" placeholder="Bill Number">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Payer ID</label>
+                                                <input class="form-control mb-4" type="text" placeholder="Payer ID">
+
+                                                <label class="control-label">Invoice Number</label>
+                                                <input class="form-control" type="text" placeholder="Invoice Number">
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <button class="btn btn-outline-success">Search</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card">
                             <div class="card-body table-responsive">
-
-                                <div class="row">
-                                    <div class="col-md-2">
-                                        <div class="form-group">
-                                            <label class="control-label">Customer Name</label>
-                                                <input class="form-control" type="text" placeholder="" id="example-text-input">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <div class="form-group">
-                                            <label class="control-label">Invoice Number</label>
-                                                <input class="form-control" type="text" placeholder="" id="example-text-input">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <div class="form-group">
-                                            <label class="control-label">Date Range</label>
-                                                <input class="form-control" type="date" placeholder="" id="example-text-input">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <div class="form-group" style="margin-top: 30px;">
-                                            <button class="btn btn-success mr-3">Search</button>
-                                            <button class="btn btn-secondary">Reset</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
-                                        <th>CUSTOMER NAME</th>
-                                        <th>PAYMENT REF</th>
-                                        <th>DATE</th>
-                                        <th>AMOUNT</th>
-                                        <th>CURRENCY</th>
-                                        <th></th>
-                                        <th></th>
+                                        <th>Customer Name</th>
+                                        <th>Bill Number</th>
+                                        <th>Amount Paid</th>
+                                        <th>Date Paid</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                        
                                     </tr>
                                     </thead>
 
 
                                     <tbody>
                                     <tr>
-                                        <td>Tiger Nixon</td>
-                                        <td>System Architect</td>
-                                        <td>Edinburgh</td>
-                                        <td>61</td>
-                                        <td>2011/04/25</td>
-                                        <td>$320,800</td>
-                                        <td>Invoice</td>
+                                        <td>Jane Pricilia</td>
+                                        <td>#1159</td>
+                                        <td>N2,000</td>
+                                        <td>2022/09/10</td>
+                                        <td>Paid</td>
+                                        <td><button class="btn btn-outline-success">Details</button></td>
                                     </tr>
                                     <tr>
-                                        <td>Garrett Winters</td>
-                                        <td>Accountant</td>
-                                        <td>Tokyo</td>
-                                        <td>63</td>
-                                        <td>2011/07/25</td>
-                                        <td>$170,750</td>
-                                        <td>Invoice</td>
+                                        <td>Anthony josh</td>
+                                        <td>#3848</td>
+                                        <td>N6,000</td>
+                                        <td>2022/09/18</td>
+                                        <td>Paid</td>
+                                        <td><button class="btn btn-outline-success">Details</button></td>
                                     </tr>
-                                   
-                                    
+                                    <tr>
+                                        <td>Mike Williams</td>
+                                        <td>#3848</td>
+                                        <td>N6,000</td>
+                                        <td>2022/09/18</td>
+                                        <td>Paid</td>
+                                        <td><button class="btn btn-outline-success">Details</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Damilola Ade</td>
+                                        <td>#3848</td>
+                                        <td>N12,000</td>
+                                        <td>2022/09/12</td>
+                                        <td>Paid</td>
+                                        <td><button class="btn btn-outline-success">Details</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aisha Sambo</td>
+                                        <td>#3848</td>
+                                        <td>N2,600</td>
+                                        <td>2022/09/07</td>
+                                        <td>Paid</td>
+                                        <td><button class="btn btn-outline-success">Details</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Johnson John</td>
+                                        <td>#3848</td>
+                                        <td>N23,000</td>
+                                        <td>2022/09/22</td>
+                                        <td>Paid</td>
+                                        <td><button class="btn btn-outline-success">Details</button></td>
+                                    </tr>
                                     
                                     </tbody>
                                 </table>

@@ -1,5 +1,6 @@
 <script>
     import axios from 'axios'
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'setupbankaccounts',
@@ -12,27 +13,54 @@
                 bankCode: '',
                 accountName: '',
                 accountNumber: '',
+
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                role: '',
                 
             }
-        },  
+        },
+        
+        async mounted(){
+
+            this.role = localStorage.getItem('role');
+
+            const resu = await axios.get('api/Users/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },);
+            this.customerDetails = resu.data.result;
+
+        },
 
         methods: {
             async handleBankAcount(){
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
                 
                 
                 if (!this.bankCode) {
-                    this.errors.push("Bank Code required.");
+                    toast.error("Bank Code required.");
                 }
 
                 if (!this.accountName) {
-                    this.errors.push("Account Name required.");
+                    toast.error("Account Name required.");
                 }
 
                 if (!this.accountNumber) {
-                    this.errors.push("Account Number required.");
+                    toast.error("Account Number required.");
                 }
                 
                 const response = await axios.post('api/BankAccounts/addbankaccount', {
@@ -48,15 +76,15 @@
                 
 
                 if (response) {
-                    console.log(response);
-                    this.message.push(response.data.message);
+                    // console.log(response);
+                    toast.success(response.data.message);
 
                     this.bankCode = "";
                     this.accountName = "";
                     this.accountNumber = "";
 
                 }else {
-                    this.errors.push("Incorrect Parameter");
+                    toast.error("Incorrect Parameter");
                 }
 
                 
@@ -85,12 +113,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Setup Bank Account</h4>
+                              <h4 class="mb-0">Create Bank Account <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
-                                      <li class="breadcrumb-item"><a href="javascript: void(0);">Back Office</a></li>
-                                      <li class="breadcrumb-item active">Setup Bank Account</li>
+                                    <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
+                                      <li class="breadcrumb-item active">Create Bank Account</li>
                                   </ol>
                               </div>
 
@@ -117,29 +145,29 @@
                                 </div>
                                 <form @submit.prevent="handleBankAcount">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-4">
                                             <div class="form-group">
-                                                <label class="control-label">Bank Code</label>
+                                                <label class="control-label">Bank Code <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="bankCode">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-4">
                                             <div class="form-group">
-                                                <label class="control-label">Account Name</label>
+                                                <label class="control-label">Account Name <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="accountName">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-4">
                                             <div class="form-group">
-                                                <label class="control-label">Account Number</label>
+                                                <label class="control-label">Account Number <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="accountNumber">
                                             </div>
                                         </div>
 
                                     </div>
-                                    <button class="btn btn-success mr-4 float-left">Save</button>
+                                    <button class="btn btn-outline-success mt-4">Create</button>
                                     
                                 </form>
                                 <!-- <button class="btn btn-primary float-left">Cancel</button> -->
