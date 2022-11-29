@@ -30,13 +30,18 @@
                     gender: '',
                     unit: '',
                 },
-                
+                roless: 'revenue-officer',
                 
             }
         },
 
         async mounted(){
             this.role = localStorage.getItem('role');
+
+            if(this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {

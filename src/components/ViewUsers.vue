@@ -24,12 +24,21 @@
 
                 search: '',
                 showsearch: false,
-                caris: []
+                caris: [],
+
+                loaderDiv: '',
+                mainDiv: 'd-none',
+                roles: 'org-admin',
             }
         },
 
         async mounted(){
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
             
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -39,19 +48,22 @@
             this.customerDetails = resul.data.result;
 
 
-            const result = await axios.get('api/Users/users', {
+            const result = await axios.get('api/Users/orgusers/'+this.customerDetails.organizationCode, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
             },);
             this.allusers = result.data.result;
+            this.loaderDiv = "d-none";
+            this.mainDiv = "";
             setTimeout(() => {
             $("#datatable").DataTable({
                 lengthMenu: [
                 [5,10, 25, 50, -1],
                 [5,10, 25, 50, "All"],
                 ],
-                pageLength: 10,
+                pageLength: 25,
+                retrieve: true,
             });
             });
         },
@@ -174,6 +186,33 @@
                                 <div class="mb-4 text-right">
                                     <router-link class="btn btn-outline-success" to="/create-user"><i class="fa fa-plus"></i> Create User</router-link>
                                 </div>
+                                <div :class="this.loaderDiv">
+                                    <div class="ph-item">
+                                        <div class="ph-col-12">
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div :class="this.mainDiv">
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
@@ -202,7 +241,7 @@
                                     </tr>
                                     </tbody>
                                 </table>
-
+                                </div>
                             </div>
                         </div>
                     </div> <!-- end col -->

@@ -6,7 +6,7 @@ import VueApexCharts from "vue3-apexcharts"
 import './axios'
 import "@/assets/base.css";
 import Toast from "vue-toastification";
-// Import the CSS or use your own!
+import "./assets/placeholder-loading.min.css";
 import "vue-toastification/dist/index.css";
 
 const state = () => ({

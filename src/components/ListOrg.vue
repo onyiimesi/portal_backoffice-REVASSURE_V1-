@@ -1,5 +1,6 @@
 <script>
     import axios from "axios";
+    import { useToast } from "vue-toastification";
 
     export default{
         name: 'listorganization',
@@ -14,10 +15,14 @@
 
                 search: '',
                 showsearch: false,
+                caris: [],
 
                 showpar: false,
 
                 role: '',
+
+                roles: '0',
+                roless: 'portal-admin',
                 parentOrganizationCode: '',
 
                 customerDetails: {
@@ -30,11 +35,19 @@
                     gender: '',
                     unit: '',
                 },
+                loaderDiv: '',
+                mainDiv: 'd-none',
             }
         },
 
         async mounted(){
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
+
 
             const resultss = await axios.get('api/Users/profile',{
                 headers: {
@@ -49,22 +62,28 @@
                 }
             });
             this.allorg = result.data.result;
+            this.loaderDiv = "d-none";
+            this.mainDiv = "";
             this.showpar = false;
             this.showsearch = false;
 
+            $('#datatable').dataTable().fnDestroy();
             setTimeout(() => {
             $("#datatable").DataTable({
                 lengthMenu: [
                 [5,10, 25, 50, -1],
                 [5,10, 25, 50, "All"],
                 ],
-                pageLength: 10,
-            });
+                pageLength: 25,
+                bFilter: false,
+                retrieve: true,
+            }).clear();
             });
             
         },
 
         methods: {
+
 
             async onChange(event) {
 
@@ -79,6 +98,41 @@
                 this.showsearch = false;
                 
             },
+
+            async searchOrg(){
+                const toast = useToast()
+
+                
+                await axios.get('api/Organisation/search?search='+this.search, {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            },)
+                .then(res => {
+                    this.caris = res.data.result;
+
+                    if(this.caris.length == 0){
+                        toast.error("You can only search by organisation name or organisation code")
+                    }
+                    setTimeout(() => {
+                    $("#datatable").DataTable({
+                        lengthMenu: [
+                        [5,10, 25, 50, -1],
+                        [5,10, 25, 50, "All"],
+                        ],
+                        pageLength: 25,
+                        retrieve: true,
+                    });
+                    });
+                    this.search = ''; 
+                    this.showsearch = true;
+                })
+                .catch(err => {
+                    this.eee = err.response.data.errors;
+                    toast.error(this.eee.search[0])
+                    
+                })
+            }
         },
     }
 </script>
@@ -102,12 +156,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Organizations <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}}</span> // <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span> </h4>
+                              <h4 class="mb-0">Organisations <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}}</span> // <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span> </h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
-                                      <li class="breadcrumb-item active">Organizations</li>
+                                      <li class="breadcrumb-item active">Organisations</li>
                                   </ol>
                               </div>
 
@@ -120,7 +174,19 @@
                   <div class="row">
                     <div class="col-12">
                         
-
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Search Organisation</h5><hr>
+                                <form @submit.prevent="searchOrg">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <input class="form-control mb-3" type="text" placeholder="Enter Organisation code or Organisation name" v-model="search">
+                                            <button class="btn btn-outline-success">Search</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         <div class="card">
                             <div class="card-body table-responsive">
                                 <div class="mb-4">
@@ -128,14 +194,14 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="mb-2 float-left">
-                                                    <label for="">Choose Parent Organization</label>
+                                                    <label for="">Choose Parent Organisation</label>
                                                     <select @change="onChange($event)" v-model="organisationCode" class="form-control" style="width: 200px; !important">
                                                         <option v-for="org in allorg" :value="org.organisationCode">{{org.organisationCode}}</option>
                                                     </select>
                                                 </div>
                                             
                                                 <div class="mt-3 float-right" v-if="role === '0' || role === 'portal-admin' ">
-                                                    <router-link to="/create-organization"><button class="btn btn-outline-success"><i class="fa fa-plus"></i> Create Organization</button></router-link>
+                                                    <router-link to="/create-organization"><button class="btn btn-outline-success"><i class="fa fa-plus"></i> Create Organisation</button></router-link>
                                                 </div>
                                             </div>
 
@@ -149,8 +215,8 @@
                                         <thead>
                                         <tr>
                                             <th>Parent Code</th>
-                                            <th>Organization Code</th>
-                                            <th>Organization Name</th>
+                                            <th>Organisation Code</th>
+                                            <th>Organisation Name</th>
                                             <th>Email Address</th>
                                             <th>Phone Number</th>
                                             <th>Address</th>
@@ -171,14 +237,14 @@
                                             <td>{{item.organisationAddress}}</td>
                                             <td>{{item.organisationWebsite}}</td>
                                             <td>
-                                                <router-link :to="'/edit-org/'+item.organisationCode"><button class="btn btn-outline-success mr-2" data-toggle="modal" data-target=".bs-example-modal-center">Edit</button></router-link>
+                                                <router-link :to="'/view-organisation/'+item.organisationCode"><button type="button" class="btn btn-outline-success">View</button></router-link>
                                             </td>
                                             <!-- <td>61</td> -->
                                         </tr>
                                         </tbody>
                                     </table>
                                     
-                                    <a href="/list-organization"><button class="btn btn-outline-success">Go Back</button></a>
+                                    <a href="/list-organisation"><button class="btn btn-outline-success">Go Back</button></a>
                                 </div>
 
                                 <div v-if="this.showpar == true && this.showsearch == false">
@@ -186,8 +252,8 @@
                                         <thead>
                                         <tr>
                                             <th>Parent Code</th>
-                                            <th>Organization Code</th>
-                                            <th>Organization Name</th>
+                                            <th>Organisation Code</th>
+                                            <th>Organisation Name</th>
                                             <th>Email Address</th>
                                             <th>Phone Number</th>
                                             <th>Address</th>
@@ -208,22 +274,49 @@
                                             <td>{{item.organisationAddress}}</td>
                                             <td>{{item.organisationWebsite}}</td>
                                             <td>
-                                                <router-link :to="'/edit-org/'+item.organisationCode"><button class="btn btn-outline-success mr-2">Edit</button></router-link>
+                                                <router-link :to="'/view-organisation/'+item.organisationCode"><button type="button" class="btn btn-outline-success">View</button></router-link>
                                             </td>
                                             <!-- <td>61</td> -->
                                         </tr>
                                         </tbody>
                                     </table>
-                                    <a href="/list-organization"><button class="btn btn-outline-success">Go Back</button></a>
+                                    <a href="/list-organisation"><button class="btn btn-outline-success">Go Back</button></a>
                                 </div>
 
-                                <div v-if="this.showpar == false">
+                                <div v-if="this.showpar == false && this.showsearch == false">
+                                    <div :class="this.loaderDiv">
+                                        <div class="ph-item">
+                                            <div class="ph-col-12">
+                                                <div class="ph-row">
+                                                    <div class="ph-col-4"></div>
+                                                    <div class="ph-col-8 empty"></div>
+                                                    <div class="ph-col-6"></div>
+                                                    <div class="ph-col-6 empty"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                </div>
+                                                <div class="ph-row">
+                                                    <div class="ph-col-4"></div>
+                                                    <div class="ph-col-8 empty"></div>
+                                                    <div class="ph-col-6"></div>
+                                                    <div class="ph-col-6 empty"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>  
+                                    <div :class="this.mainDiv">      
                                     <table id="datatable" class="table table-border-success table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                         <thead>
                                         <tr>
                                             <th>Parent Code</th>
-                                            <th>Organization Code</th>
-                                            <th>Organization Name</th>
+                                            <th>Organisation Code</th>
+                                            <th>Organisation Name</th>
                                             <th>Email Address</th>
                                             <!-- <th>Phone Number</th>
                                             <th>Address</th>
@@ -248,71 +341,15 @@
                                             <td>{{item.organisationAddress}}</td>
                                             <td>{{item.organisationWebsite}}</td> -->
                                             <td>
-                                                <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.organisationCode">View</button>
+                                                <!-- <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.organisationCode">View</button> -->
+
+                                                <router-link :to="'/view-organisation/'+item.organisationCode"><button type="button" class="btn btn-outline-success">View</button></router-link>
                                             </td>
-                                            
-
-                                            <div class="modal fade" :id="'bs-example-modal-lg-' + item.organisationCode" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                    <div class="modal-content">
-                                                        
-                                                        <div class="modal-header">
-                                                            <h5 id="myLargeModalLabel" class="modal-title mt-0">View Organization</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="row">
-                                                                <div class="col-6 col-md-4 mb-4">
-                                                                    <div class="form-group">
-                                                                        <label class="control-label">Organisation Name</label>
-                                                                        <h5>{{item.organisationName}}</h5>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-6 col-md-4 mb-4">
-                                                                    <div class="form-group">
-                                                                        <label class="control-label">Email Address</label>
-                                                                        <h5>{{item.organisationEmail}}</h5>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-6 col-md-4 mb-4">
-                                                                    <div class="form-group">
-                                                                        <label class="control-label">Phone Number</label>
-                                                                        <h5>{{item.organisationPhoneNumber}}</h5>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-6 col-md-4 mb-4">
-                                                                    <div class="form-group">
-                                                                        <label class="control-label">Office Address</label>
-                                                                        <h5>{{item.organisationAddress}}</h5>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-6 col-md-4 mb-4">
-                                                                    <div class="form-group">
-                                                                        <label class="control-label">Website</label>
-                                                                        <h5>{{item.organisationWebsite}}</h5>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div><hr>
-                                                        
-                                                        
-                                                            <router-link :to="'/edit-org/'+item.organisationCode"><button type="button" class="btn btn-outline-success" data-dismiss="modal">Edit Organization</button></router-link>
-                                                        </div>
-                                                        
-                                                    </div><!-- /.modal-content -->
-                                                    
-                                                </div><!-- /.modal-dialog -->
-                                            </div>
+                                        
                                         </tr>
                                         </tbody>
                                     </table>
-
+                                </div>
                                     
                                 </div>
                             </div>

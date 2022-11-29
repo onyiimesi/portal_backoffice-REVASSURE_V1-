@@ -7,147 +7,155 @@
       name: 'dashboard',
       name: 'autologout',
   
-      data: function(){
-          return{
+        data: function(){
+            return{
 
-            customerDetails: {
+                customerDetails: {
 
-                emailAddress: '',
-                subOrganisationCode: '',
-                organizationCode: '',
-                firstName: '',
-                lastName: '',
-                middleName: '',
-                gender: '',
-                unit: '',
-            },
-
-            series: [{
-                name: 'Inflation',
-                data: [10, 70, 35, 51, 49, 62, 69, 91, 40]
-            }],
-            chartOptions: {
-                chart: {
-                height: 350,
-                type: 'bar',
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
                 },
-                plotOptions: {
-                bar: {
-                    borderRadius: 10,
-                    dataLabels: {
-                    position: 'top', // top, center, bottom
+
+                series: [{
+                    name: 'Inflation',
+                    data: [10, 70, 35, 51, 49, 62, 69, 91, 40]
+                }],
+                chartOptions: {
+                    chart: {
+                    height: 350,
+                    type: 'bar',
                     },
-                }
-                },
-                dataLabels: {
-                enabled: true,
-                formatter: function (val) {
-                    return val + "%";
-                },
-                offsetY: -20,
-                style: {
-                    fontSize: '12px',
-                    colors: ["#304758"]
-                }
-                },
-                
-                xaxis: {
-                categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                position: 'top',
-                axisBorder: {
-                    show: false
-                },
-                axisTicks: {
-                    show: false
-                },
-                crosshairs: {
-                    fill: {
-                    type: 'gradient',
-                    gradient: {
-                        colorFrom: '#D8E3F0',
-                        colorTo: '#BED1E6',
-                        stops: [0, 100],
-                        opacityFrom: 0.4,
-                        opacityTo: 0.5,
+                    plotOptions: {
+                    bar: {
+                        borderRadius: 10,
+                        dataLabels: {
+                        position: 'top', // top, center, bottom
+                        },
                     }
-                    }
-                },
-                tooltip: {
+                    },
+                    dataLabels: {
                     enabled: true,
-                }
-                },
-                yaxis: {
-                axisBorder: {
-                    show: false
-                },
-                axisTicks: {
-                    show: false,
-                },
-                labels: {
-                    show: false,
                     formatter: function (val) {
-                    return val + "%";
+                        return val + "%";
+                    },
+                    offsetY: -20,
+                    style: {
+                        fontSize: '12px',
+                        colors: ["#304758"]
                     }
-                }
-                
+                    },
+                    
+                    xaxis: {
+                    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    position: 'top',
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    },
+                    crosshairs: {
+                        fill: {
+                        type: 'gradient',
+                        gradient: {
+                            colorFrom: '#D8E3F0',
+                            colorTo: '#BED1E6',
+                            stops: [0, 100],
+                            opacityFrom: 0.4,
+                            opacityTo: 0.5,
+                        }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                    }
+                    },
+                    yaxis: {
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false,
+                    },
+                    labels: {
+                        show: false,
+                        formatter: function (val) {
+                        return val + "%";
+                        }
+                    }
+                    
+                    },
+                    title: {
+                    text: 'Monthly Inflation in Argentina, 2002',
+                    floating: true,
+                    offsetY: 330,
+                    align: 'center',
+                    style: {
+                        color: '#444'
+                    }
+                    }
                 },
-                title: {
-                text: 'Monthly Inflation in Argentina, 2002',
-                floating: true,
-                offsetY: 330,
-                align: 'center',
-                style: {
-                    color: '#444'
-                }
-                }
-            },
 
-            seriess: [{
-              name: "Desktops",
-              data: [10, 70, 35, 51, 49, 62, 69, 91, 40]
-            }],
-            chartOptionss: {
-                chart: {
-                height: 350,
-                type: 'line',
-                zoom: {
+                seriess: [{
+                name: "Desktops",
+                data: [10, 70, 35, 51, 49, 62, 69, 91, 40]
+                }],
+                chartOptionss: {
+                    chart: {
+                    height: 350,
+                    type: 'line',
+                    zoom: {
+                        enabled: false
+                    }
+                    },
+                    dataLabels: {
                     enabled: false
-                }
+                    },
+                    stroke: {
+                    curve: 'straight'
+                    },
+                    title: {
+                    text: '',
+                    align: 'left'
+                    },
+                    grid: {
+                    row: {
+                        colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                        opacity: 0.5
+                    },
+                    },
+                    xaxis: {
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    }
                 },
-                dataLabels: {
-                enabled: false
-                },
-                stroke: {
-                curve: 'straight'
-                },
-                title: {
-                text: '',
-                align: 'left'
-                },
-                grid: {
-                row: {
-                    colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                    opacity: 0.5
-                },
-                },
-                xaxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                }
-            },
-          }
-      },
-  
-      async mounted(){
-        this.role = localStorage.getItem('role');
 
-        const result = await axios.get('api/Users/profile',{
-            headers: {
-                Authorization: 'Bearer ' + localStorage.getItem('token')
+                roles: 'billing-oficer',
+                roless: 'revenue-officer',
             }
-        });
-        this.customerDetails = result.data.result;
+        },
   
-      },
+        async mounted(){
+            this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
+
+            const result = await axios.get('api/Users/profile',{
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            this.customerDetails = result.data.result;
+  
+        },
   
   
     }

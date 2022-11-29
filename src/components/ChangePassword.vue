@@ -1,16 +1,21 @@
 <script>
     import axios from "axios"
+    import { useToast } from "vue-toastification";
+    import useValidate  from '@vuelidate/core'
+    import { required, sameAs  } from '@vuelidate/validators'
 
     export default{
         name: 'changepassword',
         
         data(){
             return{
+                v$: useValidate(),
                 errors: [],
                 message: [],
 
                 oldpassword: '',
                 newpassword: '',
+                confirmPassword: '',
 
                 orgDetails: {
                     id: '',
@@ -25,12 +30,24 @@
                 },
 
                 role: '',
+                id: '',
 
+            }
+        },
+
+        validations () {
+            return {
+                newpassword: {
+                    required,
+ 
+                },
+                confirmPassword: { required, sameAsPassword: sameAs(this.newpassword) }
             }
         },
 
         async mounted(){
             this.role = localStorage.getItem('role');
+            this.id = localStorage.getItem('id');
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -46,35 +63,44 @@
             async changePass(){
                 this.errors = [];
                 this.message = [];
-
+                const toast = useToast()
                 
 
                 if (!this.newpassword) {
-                    this.errors.push("Field required.");
+                    toast.error("Field required.");
                 }
+
+                this.v$.$validate()
+                if (!this.v$.$error) {
                 
-                const response = await axios.put('api/UserAccount/changepassword', {
-                    accountid: this.orgDetails.id,
-                    oldpassword: this.oldpassword,
-                    newpassword: this.newpassword,
+                    const response = await axios.put('api/UserAccount/changepassword', {
+                        accountid: this.id,
+                        oldpassword: this.oldpassword,
+                        newpassword: this.newpassword,
+                        
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },);
+
+                    if (response) {
                     
-                }, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                        toast.success(response.data.message);
+                        
+                        this.oldpassword = "";
+                        this.newpassword = "";
+                        this.confirmPassword = "";
+
+                    }else{
+                        toast.error("Incorrect Parameter");
                     }
-                },);
+                }else {
+                    toast.error("New password & Confirm password don't match.");
+                }
                 
 
-                if (response) {
-                    
-                    this.message.push(response.data.message);
-                    
-                    this.oldpassword = "";
-                    this.newpassword = "";
-
-                }else{
-                    this.errors.push("Incorrect Parameter");
-                }
+                
   
             }
         },
@@ -134,17 +160,24 @@
                                 <form @submit.prevent="changePass">
                                     <div class="row">
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">Old Password <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="password" v-model="oldpassword">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label class="control-label">New Password <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="password" v-model="newpassword">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="control-label">Confirm Password <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="password" v-model="confirmPassword">
                                             </div>
                                         </div>
 

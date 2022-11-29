@@ -1,6 +1,7 @@
 <script>
     import axios from "axios"
     import { useToast } from "vue-toastification";
+    import moment from "moment";
 
     export default{
         name: 'invoices',
@@ -56,12 +57,23 @@
                 comment: '',
                 entryValue: '',
 
+                loaderDiv: '',
+                mainDiv: 'd-none',
+
+                roles: 'billing-oficer',
+                roless: 'revenue-officer',
+
             }
             
         },
 
         async mounted(){
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile',{
                 headers: {
@@ -77,12 +89,12 @@
             },);
             this.roles = role.data.result;
 
-            const resultss = await axios.get('api/WorkFlowItem/Items/'+this.customerDetails.organizationCode, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
-                }
-            },);
-            this.workflow = resultss.data.result;
+            // const resultss = await axios.get('api/WorkFlowItem/Items/'+this.customerDetails.organizationCode, {
+            //     headers: {
+            //         Authorization: 'Bearer ' + localStorage.getItem('token')
+            //     }
+            // },);
+            // this.workflow = resultss.data.result;
 
 
             await axios.get('api/Invoice/details/'+this.$route.params.invoiceCode, {
@@ -97,6 +109,8 @@
                 this.customer = res.data.result.customer;
                 this.invoice = res.data.result.invoice;
                 this.items = res.data.result.items;
+                this.loaderDiv = "d-none";
+                this.mainDiv = "";
 
             })
             .catch(err => {
@@ -133,6 +147,10 @@
         },
 
         methods: {
+
+            dateTime(value) {
+                return moment(value).format('MMMM Do YYYY');
+            },
 
             async invoiceRebate(){
 
@@ -217,6 +235,33 @@
                   <div class="row aa mb-5">
                     <div class="col-12">
                         <div class="cards">
+                            <div :class="this.loaderDiv">
+                                <div class="ph-item">
+                                    <div class="ph-col-12">
+                                        <div class="ph-row">
+                                            <div class="ph-col-4"></div>
+                                            <div class="ph-col-8 empty"></div>
+                                            <div class="ph-col-6"></div>
+                                            <div class="ph-col-6 empty"></div>
+                                            <div class="ph-col-12"></div>
+                                            <div class="ph-col-12"></div>
+                                            <div class="ph-col-12"></div>
+                                            <div class="ph-col-12"></div>
+                                        </div>
+                                        <div class="ph-row">
+                                            <div class="ph-col-4"></div>
+                                            <div class="ph-col-8 empty"></div>
+                                            <div class="ph-col-6"></div>
+                                            <div class="ph-col-6 empty"></div>
+                                            <div class="ph-col-12"></div>
+                                            <div class="ph-col-12"></div>
+                                            <div class="ph-col-12"></div>
+                                            <div class="ph-col-12"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div :class="this.mainDiv">
                             <div class="card-body table-responsive">
 
                                 <div class="brand-section" >
@@ -229,7 +274,7 @@
                                         <div class="col-6">
                                             <div class="company-details">
                                                 <h2 class="heading">Invoice #{{invoice.invoiceCode}}</h2>
-                                                <p class="sub-heading">Invoice Date: {{invoice.invoiceDate}} </p>
+                                                <p class="sub-heading">Invoice Date: {{ dateTime(invoice.invoiceDate)}} </p>
                                             </div>
                                         </div>
                                     </div>
@@ -290,6 +335,7 @@
                                     <h3 class="heading">Payment Status: {{invoice.paymentStatus}}</h3>
                                 </div>
 
+                            </div>
                             </div>
                         </div>
                         <!-- <router-link to="/invoice-rebate"><button class="btn btn-info mt-3">Apply for Rebate</button></router-link> -->

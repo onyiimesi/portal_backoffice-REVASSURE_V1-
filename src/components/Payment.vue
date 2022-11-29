@@ -23,11 +23,19 @@
                 gender: '',
                 unit: '',
             },
+
+            roles: 'billing-oficer',
+            roless: 'revenue-officer',
           }
       },
   
       async mounted(){
         this.role = localStorage.getItem('role');
+
+        if(this.roles != this.role && this.roless != this.role){
+            localStorage.removeItem('token');
+            this.$router.push('/');
+        }
 
         const result = await axios.get('api/Users/profile',{
             headers: {

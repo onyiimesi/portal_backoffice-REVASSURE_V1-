@@ -138,16 +138,23 @@
                         </div> -->
 
                         <div class="col-6 col-md-3" v-if="role === '0' || role === 'portal-admin' ">
-                            <router-link to="/list-organization"><div class="card border border-success pt-3 pb-4 pl-2 pr-2 text-center">
+                            <router-link to="/list-organisation"><div class="card border border-success pt-3 pb-4 pl-2 pr-2 text-center">
                                 <i class="mdi mdi-office-building text-success"></i>
-                                <span class="text-dark">Manage Organization</span>
+                                <span class="text-dark">Manage Organisation</span>
+                            </div></router-link>
+                        </div>
+
+                        <div class="col-6 col-md-3" v-if="role === '0' ">
+                            <router-link to="/audit-log"><div class="card border border-success pt-3 pb-4 pl-2 pr-2 text-center">
+                                <i class="mdi mdi-text-box-search text-success"></i>
+                                <span class="text-dark">Audit Log</span>
                             </div></router-link>
                         </div>
 
                         <div class="col-6 col-md-3" v-if="role === 'org-admin' ">
-                            <router-link to="/list-sub-organization"><div class="card border border-primary pt-3 pb-4 pl-2 pr-2 text-center">
+                            <router-link to="/list-unit"><div class="card border border-primary pt-3 pb-4 pl-2 pr-2 text-center">
                                 <i class="mdi mdi-office-building text-primary"></i>
-                                <span class="text-dark">Manage Sub-Organization</span>
+                                <span class="text-dark">Manage Units</span>
                             </div></router-link>
                         </div>
 
@@ -161,44 +168,44 @@
                     </div>
 
                     <div class="row menu_arrange" v-if="role === 'billing-oficer' ">
-                        <div class="col-md-8 border-right mb-4">
+                        <div class="col-md-5 border-right mb-4">
                             <div class="row">
-                                <div class="col-6 col-md-4" v-if="role === 'billing-oficer'">
+                                <div class="col-6 col-md-6" v-if="role === 'billing-oficer'">
                                     <router-link to="/search-transactions"><div class="card border border-info pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-search-web text-info"></i>
                                         <span class="text-dark">Search Transactions</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'billing-oficer' ">
+                                <div class="col-6 col-md-6" v-if="role === 'billing-oficer' ">
                                     <router-link to="/view-bills"><div class="card border border-info pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-receipt text-info"></i>
                                         <span class="text-dark">Manage Bills</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if=" role === 'billing-oficer' ">
+                                <div class="col-6 col-md-6" v-if=" role === 'billing-oficer' ">
                                     <router-link to="/customer-search"><div class="card border border-info pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-account-search text-info"></i>
                                         <span class="text-dark">Customer Search</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if=" role === 'billing-oficer' ">
+                                <div class="col-6 col-md-6" v-if=" role === 'billing-oficer' ">
                                     <router-link to="/view-customers"><div class="card border border-info pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-account-multiple text-info"></i>
                                         <span class="text-dark">Manage Customers</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'billing-oficer' ">
+                                <div class="col-6 col-md-6" v-if="role === 'billing-oficer' ">
                                     <router-link to="/payments"><div class="card border border-info pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-credit-card text-info"></i>
                                         <span class="text-dark">Manage Payments</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'billing-oficer' ">
+                                <div class="col-6 col-md-6" v-if="role === 'billing-oficer' ">
                                     <router-link to="/reports"><div class="card border border-info pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-chart-bar text-info"></i>
                                         <span class="text-dark">Reports</span>
@@ -207,83 +214,85 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 mb-4">
-                            <div class="bg-white pt-2">
-                                <h5 class="pl-3 pr-3">Worklist</h5><hr>
-                                <div class="table-responsive pl-3 pr-3 pb-3">
-                                    <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                        <thead>
-                                        <tr>
-                                            <th>aaa</th>
-                                            <th>sss</th>
-                                            <th>Action</th>
-                                        </tr>
-                                        </thead>
+                        <div class="col-md-7 mb-4">
+                            <div class="card bor">
+                                <div class="card-body">
+                                    <h5 class="pl-3 pr-3">Worklist</h5><hr>
+                                    <div class="table-responsive pl-3 pr-3 pb-3">
+                                        <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                            <thead>
+                                            <tr>
+                                                <th>aaa</th>
+                                                <th>sss</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
 
 
-                                        <tbody>
-                                        <tr>
-                                            <td>aa</td>
-                                            <td>aaa</td>
-                                            <td>
-                                                <button class="btn btn-outline-success btn-sm">View</button>
-                                            </td>
-                                            
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                                            <tbody>
+                                            <tr>
+                                                <td>aa</td>
+                                                <td>aaa</td>
+                                                <td>
+                                                    <button class="btn btn-outline-success btn-sm">View</button>
+                                                </td>
+                                                
+                                            </tr>
+                                            </tbody>
+                                        </table>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="row menu_arrange" v-if="role === 'revenue-officer' ">
-                        <div class="col-md-8 border-right mb-4">
+                        <div class="col-md-5 border-right mb-4">
                             <div class="row">
-                                <div class="col-6 col-md-4" v-if="role === 'revenue-officer'">
+                                <div class="col-6 col-md-6" v-if="role === 'revenue-officer'">
                                     <router-link to="/search-transactions"><div class="card border border-warning pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-search-web text-warning"></i>
                                         <span class="text-dark">Search Transactions</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'revenue-officer'">
+                                <div class="col-6 col-md-6" v-if="role === 'revenue-officer'">
                                     <router-link to="/view-bills"><div class="card border border-warning pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-search-web text-warning"></i>
                                         <span class="text-dark">Manage Bills</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'revenue-officer'">
+                                <div class="col-6 col-md-6" v-if="role === 'revenue-officer'">
                                     <router-link to="/customer-search"><div class="card border border-warning pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-account-search text-warning"></i>
                                         <span class="text-dark">Customer Search</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'revenue-officer'">
+                                <div class="col-6 col-md-6" v-if="role === 'revenue-officer'">
                                     <router-link to="/view-customers"><div class="card border border-warning pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-account-multiple text-warning"></i>
                                         <span class="text-dark">Manage Customers</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'revenue-officer'">
+                                <div class="col-6 col-md-6" v-if="role === 'revenue-officer'">
                                     <router-link to="/payments"><div class="card border border-warning pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-credit-card text-warning"></i>
                                         <span class="text-dark">Manage Payments</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'revenue-officer'">
+                                <div class="col-6 col-md-6" v-if="role === 'revenue-officer'">
                                     <router-link to="/reports"><div class="card border border-warning pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-chart-bar text-warning"></i>
                                         <span class="text-dark">Reports</span>
                                     </div></router-link>
                                 </div>
 
-                                <div class="col-6 col-md-4" v-if="role === 'revenue-officer' ">
+                                <div class="col-6 col-md-6" v-if="role === 'revenue-officer' ">
                                     <router-link to="/search-items"><div class="card border border-warning pt-3 pb-4 pl-2 pr-2 text-center">
                                         <i class="mdi mdi-folder-multiple text-warning"></i>
                                         <span class="text-dark">Manage Items</span>
@@ -292,33 +301,36 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 mb-4">
-                            <div class="bg-white pt-2">
-                                <h5 class="pl-3 pr-3">Worklist</h5><hr>
-                                <div class="table-responsive pl-3 pr-3 pb-3">
-                                    <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                        <thead>
-                                        <tr>
-                                            <th>aaa</th>
-                                            <th>sss</th>
-                                            <th>Action</th>
-                                        </tr>
-                                        </thead>
+                        <div class="col-md-7 mb-4">
+                            <div class="card bor">
+                                <div class="card-body">
+                                    <h5 class="pl-3 pr-3">Worklist</h5><hr>
+                                    <div class="table-responsive pl-3 pr-3 pb-3">
+                                        <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                            <thead>
+                                            <tr>
+                                                <th>aaa</th>
+                                                <th>sss</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
 
 
-                                        <tbody>
-                                        <tr>
-                                            <td>aa</td>
-                                            <td>aaa</td>
-                                            <td>
-                                                <button class="btn btn-outline-success btn-sm">View</button>
-                                            </td>
-                                            
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                                            <tbody>
+                                            <tr>
+                                                <td>aa</td>
+                                                <td>aaa</td>
+                                                <td>
+                                                    <button class="btn btn-outline-success btn-sm">View</button>
+                                                </td>
+                                                
+                                            </tr>
+                                            </tbody>
+                                        </table>
 
+                                    </div>
                                 </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -351,5 +363,7 @@
   <router-view></router-view>
 </template>
 <style scoped>
-
+    .bor{
+        border-radius: 15px !important;
+    }
 </style>

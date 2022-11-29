@@ -26,13 +26,18 @@
                 },
 
                 role: '',
-                
+                roless: 'revenue-officer',
             }
         },  
 
         async mounted(){
 
             this.role = localStorage.getItem('role');
+
+            if(this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
             
             const resu = await axios.get('api/Users/profile', {
                 headers: {

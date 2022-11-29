@@ -32,7 +32,12 @@
                     gender: '',
                     unit: '',
                 },
-                
+
+                loaderDiv: '',
+                mainDiv: 'd-none',
+
+                roles: 'billing-oficer',
+                roless: 'revenue-officer',
                 
             }
         },
@@ -40,6 +45,11 @@
         async mounted(){
 
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -55,6 +65,8 @@
                 }
             },);
             this.customerDetails = result.data.result;
+            this.loaderDiv = "d-none";
+            this.mainDiv = "";
 
             const results = await axios.get('api/Invoice/customerinvoices/'+this.$route.params.customerCode, {
                 headers: {
@@ -110,21 +122,48 @@
                             <div class="card" v-if="this.role == 'billing-oficer'">
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <router-link :to="'/create-user-bill/'+customerDetails.id" style="color: #000;font-weight: bold;font-size: 14px;text-transform: uppercase;">Create Bill</router-link>
+                                        <router-link :to="'/create-user-bill/'+customerDetails.id" style=";font-weight: bold;font-size: 13px;text-transform: uppercase;" class="btn btn-outline-success">Create Bill</router-link>
                                     </div>
 
                                     <div class="mb-3">
-                                        <router-link :to="'/customer-details/'+customerDetails.id" style="color: #000;font-weight: bold;font-size: 14px;text-transform: uppercase;">Issue Rebate</router-link>
+                                        <router-link :to="'/customer-details/'+customerDetails.id" style=";font-weight: bold;font-size: 13px;text-transform: uppercase;" class="btn btn-outline-success">Issue Rebate</router-link>
                                     </div>
 
                                     <div class="mb-1">
-                                        <router-link :to="'/update-details/'+customerDetails.id" style="color: #000;font-weight: bold;font-size: 14px;text-transform: uppercase;">Update Deatails</router-link>
+                                        <router-link :to="'/update-details/'+customerDetails.id" style=";font-weight: bold;font-size: 13px;text-transform: uppercase;" class="btn btn-outline-success">Update Deatails</router-link>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="card mb-4"> 
                                 <div class="card-body">
+                                    <div :class="this.loaderDiv">
+                                        <div class="ph-item">
+                                            <div class="ph-col-12">
+                                                <div class="ph-row">
+                                                    <div class="ph-col-4"></div>
+                                                    <div class="ph-col-8 empty"></div>
+                                                    <div class="ph-col-6"></div>
+                                                    <div class="ph-col-6 empty"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                </div>
+                                                <div class="ph-row">
+                                                    <div class="ph-col-4"></div>
+                                                    <div class="ph-col-8 empty"></div>
+                                                    <div class="ph-col-6"></div>
+                                                    <div class="ph-col-6 empty"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div :class="this.mainDiv">
                                     <div>
                                         <label for="">Customer Number</label>
                                         <h3 style="font-size: 20px;">
@@ -147,6 +186,7 @@
                                         <h3 style="font-size: 20px;">
                                             {{customerDetails.emailAddress}} <br>{{customerDetails.mobileNumber1}}
                                         </h3>
+                                    </div>
                                     </div>
                                 </div>
                             </div>

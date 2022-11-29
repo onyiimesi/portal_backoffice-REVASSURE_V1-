@@ -8,11 +8,26 @@ export default {
         return {
             errors: [],
             email: '',
-            password: ''
+            password: '',
+
+            loading: false,
         }
     },
 
     methods: {
+        handleLoader(){
+            this.loading = false;
+
+            if(this.email && this.password){
+                setTimeout(()=>{
+                    this.loading = true;
+                }, 100)
+            }else if(!this.email && !this.password){
+                this.loading = false;
+            }
+
+        },
+
         async handleSubmit() {
             this.errors = [];
 
@@ -21,11 +36,13 @@ export default {
             if (!this.email) {
                 // this.errors.push("Email required.");
                 toast.error("Email required.");
+               
             }
 
             if (!this.password) {
                 // this.errors.push("Password required.");
                 toast.error("Password required");
+                
             }else{
 
                 await axios.post("api/UserAccount/authenticate", {
@@ -39,6 +56,8 @@ export default {
                         var token = response.data.result.token;
 
                         localStorage.setItem('token', response.data.result.token);
+
+                        localStorage.setItem('id', response.data.result.details.id);
                         
                         localStorage.setItem('role', response.data.result.details.role);
 
@@ -56,6 +75,7 @@ export default {
 
                     }else{
                         toast.error("Invalid User");
+                        this.loading = false;
                     }
                 })
                 .catch(error => {
@@ -144,8 +164,10 @@ export default {
                                             </div> -->
 
                                                 <div class="mt-4 text-center">
-                                                    <button class="btn btn-primary w-md waves-effect waves-light">Log
-                                                        In</button>
+                                                    <button type="submit" @click="handleLoader()" class="btn btn-primary w-md waves-effect waves-light">
+                                                        <span v-if="loading" class="spinner-border spinner-border-sm"></span>
+                                                        <span v-else>Log In</span>
+                                                    </button>
                                                 </div>
 
 

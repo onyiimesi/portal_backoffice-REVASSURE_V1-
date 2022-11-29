@@ -22,12 +22,22 @@
                 },
 
                 role: '',
+
+                loaderDiv: '',
+                mainDiv: 'd-none',
+
+                roless: 'revenue-officer',
             }
         },
 
         async mounted(){
 
             this.role = localStorage.getItem('role');
+
+            if(this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resu = await axios.get('api/Users/profile', {
                 headers: {
@@ -42,13 +52,16 @@
                 }
             },);
             this.allbanks = result.data.result;
+            this.loaderDiv = "d-none";
+            this.mainDiv = "";
             setTimeout(() => {
             $("#datatable").DataTable({
                 lengthMenu: [
                 [5,10, 25, 50, -1],
                 [5,10, 25, 50, "All"],
                 ],
-                pageLength: 10,
+                pageLength: 25,
+                retrieve: true,
             });
             });
         },
@@ -96,6 +109,33 @@
                                 <div class="mb-4 text-right" v-if="role === 'revenue-officer' ">
                                     <router-link class="btn btn-outline-success" to="/create-bank"><i class="fa fa-plus"></i> Create Bank</router-link>
                                 </div>
+                                <div :class="this.loaderDiv">
+                                    <div class="ph-item">
+                                        <div class="ph-col-12">
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div :class="this.mainDiv">
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
@@ -112,49 +152,12 @@
                                         <td>{{item.bankCode}}</td>
                                         <td>{{item.bankName}}</td>
                                         <td>
-                                            <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.bankCode">View</button>
+                                            <router-link :to="'/edit-bank/'+item.bankCode"><button class="btn btn-outline-success">Edit Bank</button></router-link>
                                         </td>
-                                        
-
-                                        <div class="modal fade" :id="'bs-example-modal-lg-' + item.bankCode" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content">
-                                                    
-                                                    <div class="modal-header">
-                                                        <h5 id="myLargeModalLabel" class="modal-title mt-0">View Bank</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="row">
-                                                            <div class="col-6 col-md-6 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">Bank Code</label>
-                                                                    <h5>{{item.bankCode}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-6 col-md-6 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">Bank Name</label>
-                                                                    <h5>{{item.bankName}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                        </div><hr>
-                                                    
-                                                        <router-link :to="'/edit-bank/'+item.bankCode"><button class="btn btn-outline-success" data-dismiss="modal">Edit Bank</button></router-link>
-                                                    </div>
-                                                    
-                                                </div><!-- /.modal-content -->
-                                                
-                                            </div><!-- /.modal-dialog -->
-                                        </div>
                                     </tr>
                                     </tbody>
                                 </table>
-
+                                </div>
                             </div>
                         </div>
                     </div> <!-- end col -->

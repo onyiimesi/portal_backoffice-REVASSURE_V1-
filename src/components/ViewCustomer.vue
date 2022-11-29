@@ -22,11 +22,22 @@
                     gender: '',
                     unit: '',
                 },
+
+                loaderDiv: '',
+                mainDiv: 'd-none',
+
+                roles: 'billing-oficer',
+                roless: 'revenue-officer',
             }
         },
 
         async mounted(){
             this.role = localStorage.getItem('role');
+            
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -42,6 +53,8 @@
                 }
             },);
             this.allcustomer = result.data.result;
+            this.loaderDiv = "d-none";
+            this.mainDiv = "";
             setTimeout(() => {
             $("#datatable").DataTable({
                 lengthMenu: [
@@ -51,7 +64,8 @@
                 pageLength: 10,
                 language: {
                     searchPlaceholder: "Enter NIN, BVN or Full Name"
-                }
+                },
+                retrieve: true,
             });
             });
 
@@ -100,6 +114,33 @@
                                 <div class="mb-4 text-right" v-if="role === 'billing-oficer' ">
                                     <router-link class="btn btn-outline-success" to="/create-customer"><i class="fa fa-plus"></i> Create Customer</router-link>
                                 </div>
+                                <div :class="this.loaderDiv">
+                                    <div class="ph-item">
+                                        <div class="ph-col-12">
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div :class="this.mainDiv">
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
@@ -125,92 +166,15 @@
                                         <td>{{item.firstname}} {{item.lastname}}</td>
                                         <td>{{item.mobileNumber1}}</td>
                                         <td>
-                                            <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.customerCode">View</button>
+                                            <!-- <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.customerCode">View</button> -->
+
+                                            <router-link :to="'/customer-details/'+item.customerCode"><button type="button" class="btn btn-outline-success">View</button></router-link>
                                         </td>
                                         
-                                        
-                                        <div class="modal fade" :id="'bs-example-modal-lg-' + item.customerCode" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                <div class="modal-content">
-                                                    
-                                                    <div class="modal-header">
-                                                        <h5 id="myLargeModalLabel" class="modal-title mt-0">Customer Information</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="row">
-                                                            <div class="col-6 col-md-3 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">Customer Code</label>
-                                                                    <h5>{{item.customerCode}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-6 col-md-3 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">Customer Name</label>
-                                                                    <h5>{{item.firstname}} {{item.lastname}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-6 col-md-3 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">Email Address</label>
-                                                                    <h5>{{item.emailAddress}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-6 col-md-3 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">Phone Number</label>
-                                                                    <h5>{{item.mobileNumber1}}</h5>
-                                                                </div>
-                                                            </div>
-                                                        
-                                                            <div class="col-6 col-md-3 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">Phone Number (2)</label>
-                                                                    <h5>{{item.mobileNumber2}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                            
-                                                            <div class="col-6 col-md-3 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">Address</label>
-                                                                    <h5>{{item.contactAddress}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-6 col-md-3 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">State</label>
-                                                                    <h5>{{item.stateCode}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-6 col-md-3 mb-4">
-                                                                <div class="form-group">
-                                                                    <label class="control-label">LGA</label>
-                                                                    <h5>{{item.lgaCode}}</h5>
-                                                                </div>
-                                                            </div>
-
-                                                        </div><hr>
-
-                                                        <router-link :to="'/customer-details/'+item.customerCode"><button type="button" class="btn btn-outline-success" data-dismiss="modal">View Profile</button></router-link>
-                                                    </div>
-                                                    
-                                                </div><!-- /.modal-content -->
-                                                
-                                            </div><!-- /.modal-dialog -->
-                                        </div>
                                     </tr>
                                     </tbody>
                                 </table>
-
+                                </div>
                             </div>
                         </div>
                     </div> <!-- end col -->

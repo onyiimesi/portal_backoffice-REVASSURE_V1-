@@ -28,11 +28,18 @@
                     gender: '',
                     unit: '',
                 },
+
+                roles: 'org-admin',
             }
         },  
 
         async mounted(){
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -50,11 +57,11 @@
                 
                 
                 if (!this.subOrganisationCode) {
-                    toast.error("Sub-Organisation Code required.");
+                    toast.error("Unit Code required.");
                 }
 
                 if (!this.subOrganisationName) {
-                    toast.error("Sub-Organisation Name required.");
+                    toast.error("Unit required.");
                 }
                 
 
@@ -73,6 +80,7 @@
                 if (response) {
                     // console.log(response);
                     toast.success(response.data.message);
+                    this.$router.push("/list-unit");
 
                     this.subOrganisationCode = "";
                     this.subOrganisationName = "";
@@ -107,12 +115,12 @@
                   <div class="row">
                       <div class="col-12">
                           <div class="page-title-box d-flex align-items-center justify-content-between">
-                              <h4 class="mb-0">Create Sub-Organization <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
+                              <h4 class="mb-0">Create Unit <br> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.organizationCode}} //  {{customerDetails.subOrganisationCode}} //</span> <span style="font-size: 14px;font-weight: 500;">{{customerDetails.lastName}} {{customerDetails.firstName}} // {{this.role}}</span></h4>
 
                               <div class="page-title-right">
                                   <ol class="breadcrumb m-0">
                                       <li class="breadcrumb-item"><router-link to="/dashboard">Home</router-link></li>
-                                      <li class="breadcrumb-item active">Create Sub-Organization</li>
+                                      <li class="breadcrumb-item active">Create Unit</li>
                                   </ol>
                               </div>
 
@@ -151,7 +159,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Sub-Organization Code <span class="text-danger">*</span></label>
+                                                <label class="control-label">Unit Code <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="subOrganisationCode">
 
                                                 <!-- <select v-model="subOrganisationCode" class="form-control" id="">
@@ -164,7 +172,7 @@
                                     
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Sub-Organization Name <span class="text-danger">*</span></label>
+                                                <label class="control-label">Unit <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="subOrganisationName">
                                             </div>
                                         </div>

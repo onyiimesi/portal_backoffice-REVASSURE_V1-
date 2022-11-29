@@ -21,11 +21,22 @@
                     gender: '',
                     unit: '',
                 },
+
+                loaderDiv: '',
+                mainDiv: 'd-none',
+
+                roles: 'billing-oficer',
+                roless: 'revenue-officer',
             }
         },
 
         async mounted(){
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -42,6 +53,8 @@
                 }
             },);
             this.allinvoice = result.data.result;
+            this.loaderDiv = "d-none";
+            this.mainDiv = "";
             setTimeout(() => {
             $("#datatable").DataTable({
                 lengthMenu: [
@@ -49,6 +62,7 @@
                 [5,10, 25, 50, "All"],
                 ],
                 pageLength: 10,
+                retrieve: true,
             });
             });
             
@@ -98,6 +112,33 @@
                                 <div class="mb-4 text-right" v-if="role === 'billing-oficer' ">
                                     <router-link class="btn btn-outline-success" to="/create-bill"><i class="fa fa-plus"></i> Create Bill</router-link>
                                 </div>
+                                <div :class="this.loaderDiv">
+                                    <div class="ph-item">
+                                        <div class="ph-col-12">
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div :class="this.mainDiv">
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
@@ -125,7 +166,7 @@
                                         <td>{{item.paymentStatus}}</td>
                                         
                                         <td>
-                                            <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.invoiceCode">View</button>
+                                            <router-link :to="'/bills/'+item.invoiceCode"><button class="btn btn-outline-success">View</button></router-link>
                                         </td>
                                         <!-- <td>61</td> -->
 
@@ -189,7 +230,7 @@
                                     </tr>
                                     </tbody>
                                 </table>
-
+                                </div>
                             </div>
                         </div>
                     </div> <!-- end col -->

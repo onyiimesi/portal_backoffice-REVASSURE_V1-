@@ -253,7 +253,7 @@
                                         <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/view-bills" class="dropdown-item">Manage Bills</router-link>
                                     </div>
                                     <div>
-                                        <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/customer-search" class="dropdown-item">Manage Customer</router-link>
+                                        <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/view-customers" class="dropdown-item">Manage Customers</router-link>
                                     </div>
                                     <div>
                                         <router-link v-if="role === 'billing-oficer' || role === 'revenue-officer'" to="/payments" class="dropdown-item">Manage Payments</router-link>
@@ -361,15 +361,15 @@
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div>
-                                        <router-link to="/list-organization" v-if="role === '0' || role === 'portal-admin' "  class="dropdown-item">Manage Organization</router-link>
+                                        <router-link to="/list-organisation" v-if="role === '0' || role === 'portal-admin' "  class="dropdown-item">Manage Organisation</router-link>
 
-                                        <!-- <router-link to="/list-organization" v-if="role === 'portal-admin' "  class="dropdown-item">List Organizations</router-link> -->
+                                        <router-link to="/audit-log" v-if="role === '0' || role === 'portal-admin' "  class="dropdown-item">Audit Log</router-link>
 
-                                        <router-link to="/list-sub-organization" v-if="role === 'org-admin' " class="dropdown-item">Manage Sub-Organization</router-link>
+                                        <router-link to="/list-unit" v-if="role === 'org-admin' " class="dropdown-item">Manage Unit</router-link>
 
                                         <!-- <router-link to="/list-sub-organization" v-if="role === 'org-admin' " class="dropdown-item">List Sub-Organizations</router-link> -->
                                         
-                                        <router-link to="/view-users" v-if="role === 'org-admin' " class="dropdown-item">Manage User</router-link>
+                                        <router-link to="/view-users" v-if="role === 'org-admin' " class="dropdown-item">Manage Users</router-link>
                                     </div>
                                 </div>
                             </div>

@@ -22,11 +22,20 @@
                     gender: '',
                     unit: '',
                 },
+                roless: 'revenue-officer',
+
+                loaderDiv: '',
+                mainDiv: 'd-none',
             }
         },
 
         async mounted(){
             this.role = localStorage.getItem('role');
+
+            if(this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -41,6 +50,8 @@
                 }
             },);
             this.bankAccounts = result.data.result;
+            this.loaderDiv = "d-none";
+            this.mainDiv = "";
             // setTimeout(() => {
             // $("#datatable").DataTable({
             //     lengthMenu: [
@@ -96,6 +107,33 @@
                                 <div class="mb-4 text-right" v-if="role === 'revenue-officer' ">
                                     <router-link class="btn btn-outline-success" to="/create-bank-account"><i class="fa fa-plus"></i> Create Bank Account</router-link>
                                 </div>
+                                <div :class="this.loaderDiv">
+                                    <div class="ph-item">
+                                        <div class="ph-col-12">
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                            <div class="ph-row">
+                                                <div class="ph-col-4"></div>
+                                                <div class="ph-col-8 empty"></div>
+                                                <div class="ph-col-6"></div>
+                                                <div class="ph-col-6 empty"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                                <div class="ph-col-12"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div :class="this.mainDiv">
                                 <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
@@ -114,7 +152,7 @@
                                         <td>{{item.bctAccountName}}</td>
                                         <td>{{item.bctAccountNumber}}</td>
                                         <td>
-                                            <button class="btn btn-outline-success mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.bctId">View</button>
+                                            <router-link :to="'/edit-bank-account/'+item.bctId"><button class="btn btn-outline-success">Edit Account</button></router-link>
                                         </td>
                                         
                                         
@@ -163,7 +201,7 @@
                                     </tr>
                                     </tbody>
                                 </table>
-
+                                </div>
                             </div>
                         </div>
                     </div> <!-- end col -->

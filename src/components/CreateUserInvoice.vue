@@ -58,18 +58,30 @@
                     itemCode: '',
                     quantity: '',
                     line_total: 0,
-                    
+
+                    price: 0,
                 }],
 
                 role: '',
-                
-                
+                loaderDiv: '',
+                mainDiv: 'd-none',
+
+                prices: '',
+                selectedCurrency: 'NGN',
+                roles: 'billing-oficer',
+
+                selectedItem: '',
             }
         },
 
         async mounted(){
 
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -85,6 +97,8 @@
                 }
             },);
             this.customerDetails = results.data.result;
+            this.loaderDiv = "d-none";
+            this.mainDiv = "";
 
             const curren = await axios.get('api/Currency/allcurrencies', {
                 headers: {
@@ -100,6 +114,7 @@
                 }
             });
             this.allitem = resp.data.result;
+            this.prices = resp.data.result.price;
 
 
             const result = await axios.get('api/Organisation/details/'+this.orgDetails.organizationCode, {
@@ -136,7 +151,7 @@
             },
 
             calculateLineTotal(newrow){
-                var total = parseFloat(this.allitems.price) * parseFloat(newrow.quantity);
+                var total = this.getCurrPrice(newrow) * parseFloat(newrow.quantity);
                 if(!isNaN(total)){
                     newrow.line_total = total.toFixed(2);
                 }
@@ -153,13 +168,14 @@
                 this.calculateTotal();
             },
 
-            async onChange(event) {
+            async onChange(event, newrow) {
 
                 // const response = await axios.get('api/SubOrganisation/suborganizations/'+event.target.value,{
                 //     headers: {
                 //         Authorization: 'Bearer ' + localStorage.getItem('token')
                 //     }
                 // },);
+                this.selectedItem = event.target.value;
 
                 const resp = await axios.get('api/Item/details/'+event.target.value, {
                     headers: {
@@ -168,15 +184,19 @@
                 },);
 
                 this.allitems = resp.data.result.itemDetails;
+                this.items.price = resp.data.result.itemDetails.price;
+                newrow.price = this.items.price;
+                
+                console.log(this.items.price)
 
-                // console.log(this.allitems)
-
+                
                 
                 this.items.push({
                     itemCode: '',
                     quantity: '',
                     line_total: 0,
                     
+                    price: 0,
                 })
                 
             },
@@ -227,11 +247,31 @@
 
                     
                 }
-                
-
-                
-                 
+ 
             },
+
+            selectCurrency(event){
+                this.selectedCurrency = event.target.value;
+                
+            },
+
+            getCurrPrice(newrow) {
+                
+                if(this.selectedCurrency === 'NGN'){
+                    return newrow.price;
+                    
+                }if(this.selectedCurrency === 'USD'){
+                    return newrow.price * 700;
+                }
+                else if(this.selectedCurrency === 'GBP'){
+                    return newrow.price * 400;
+                }else{
+                    return newrow.price;
+                }
+
+                 
+            }
+
 
         }
     }
@@ -277,6 +317,30 @@
                         <div class="row">
                             <div class="col-md-6 m-0 p-0">
                                 <div class="bg-white p-4 h-100">
+                                    <div :class="this.loaderDiv">
+                                        <div class="ph-item">
+                                            <div class="ph-col-12">
+                                                <div class="ph-row">
+                                                    <div class="ph-col-4"></div>
+                                                    <div class="ph-col-8 empty"></div>
+                                                    <div class="ph-col-6"></div>
+                                                    <div class="ph-col-6 empty"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                    <div class="ph-col-12"></div>
+                                                </div>
+                                                <div class="ph-row">
+                                                    <div class="ph-col-4"></div>
+                                                    <div class="ph-col-8 empty"></div>
+                                                    <div class="ph-col-6"></div>
+                                                    <div class="ph-col-6 empty"></div>
+                                                    <div class="ph-col-12"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div :class="this.mainDiv">
                                     <div class="">
                                         <div class="mb-4">
                                             <h3>{{customerDetails.firstname}} {{customerDetails.lastname}}</h3>
@@ -289,11 +353,9 @@
                                         </div>
                                         <div class="mb-3">
                                             <p style="font-size: 18px;">{{customerDetails.mobileNumber1}} - {{customerDetails.emailAddress}}</p>
-                                        </div>
-
-
-                                        
+                                        </div>   
                                     </div> 
+                                    </div>
                                 </div>
                             </div>
 
@@ -312,7 +374,8 @@
 
                                         <div class="form-group">
                                             <label class="control-label">Currency <span class="text-danger">*</span></label>
-                                            <select v-model="currencyCode" class="form-control">
+
+                                            <select @change="selectCurrency($event)" v-model="currencyCode" class="form-control">
                                                 
                                                 <option :value="this.allcurrency[0]">{{this.allcurrency[0]}}</option>
 
@@ -376,8 +439,8 @@
 
                                     <table class="table table-bordered text-center">
                                     <thead class="bg-dark text-white">
-                                        <td>Item Name & Price <span class="text-danger">*</span></td>
-                                        <!-- <td>Price</td> -->
+                                        <td>Item Name <span class="text-danger">*</span></td>
+                                        <td>Price</td>
                                         <td>Quantity <span class="text-danger">*</span></td>
                                         <td>Amount</td>
                                         <td></td>
@@ -386,17 +449,17 @@
                                     <tbody v-for="newrow in items" :key="newrow">
                                         <tr>
                                             <td>
-                                                <select v-model="newrow.itemCode" class="form-control" @change="onChange($event)" :key="newrow">
-                                                    <option v-for="sub in allitem" :value="sub.itemOrgCode">{{sub.itemCode}} - PRICE: {{sub.price}}</option>
-                                                    
+                                                <select v-model="newrow.itemCode" class="form-control" @change="onChange($event, newrow)" :key="newrow">
+                                                    <option v-for="sub in allitem" :value="sub.itemOrgCode">{{sub.itemName}} </option>
+                                                    <!-- {{ getCurrPrice(sub) }} -->
                                                 </select>
                                             </td>
-                                            <!-- <td>
-                                                <input class="form-control" type="text"  v-model="newrow.price" @keyup="calculateLineTotal(newrow)" >
-                                                <p >
-                                                    {{ newrow.allitems }}
+                                            <td>
+                                                <!-- <input class="form-control" type="text"  v-model="newrow.price" @keyup="calculateLineTotal(newrow)" > -->
+                                                <p>
+                                                    {{ getCurrPrice(newrow) }}
                                                 </p>
-                                            </td> -->
+                                            </td>
                                             <td>
                                                 <input class="form-control" type="number" v-model="newrow.quantity" @keyup="calculateLineTotal(newrow)" :key="newrow">
                                             </td>
@@ -493,7 +556,7 @@
                                                     <p style="font-size: 16px;">Grand Total: <strong>{{ invoicetotal }}</strong></p>
                                                 </div>
 
-                                                <button class="btn btn-success mt-3">Submit</button>
+                                                <button class="btn btn-outline-success mt-3">Submit</button>
 
                                             </div>
                                         </div>

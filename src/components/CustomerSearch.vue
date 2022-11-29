@@ -23,12 +23,25 @@
                     gender: '',
                     unit: '',
                 },
+
+                code: '',
+                name: '',
+                email: '',
+                phone: '',
+
+                roles: 'billing-oficer',
+                roless: 'revenue-officer',
             }
         },
 
         async mounted(){
 
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -53,7 +66,8 @@
                 pageLength: 10,
                 language: {
                     searchPlaceholder: "Enter NIN, BVN or Full Name"
-                }
+                },
+                retrieve: true,
             });
             });
 
@@ -61,13 +75,28 @@
 
         methods: {
             async searchCustomer(){
-                await axios.get('api/Customer/search?search='+this.search, {
+                await axios.get('api/Customer/search?name='+this.name+'&code='+this.code+'&email='+this.email+'&phone='+this.phone, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
             },)
                 .then(res => {
                     this.caris = res.data.result;
+                    
+                    $('#datatable1').dataTable().fnDestroy();
+                    setTimeout(() => {
+                    $("#datatable1").DataTable({
+                        lengthMenu: [
+                        [5,10, 25, 50, -1],
+                        [5,10, 25, 50, "All"],
+                        ],
+                        pageLength: 10,
+                        language: {
+                            searchPlaceholder: "Enter NIN, BVN or Full Name"
+                        },
+                        retrieve: true,
+                    });
+                    });
                     this.search = ''; 
                     this.showsearch = true;
                 })
@@ -120,13 +149,16 @@
                             <div class="card-body table-responsive border-top">
                                 <form @submit.prevent="searchCustomer">
                                     <div class="mb-3">
-                                        <input class="form-control mr-3" type="text" v-model="firstname" placeholder="First Name">
+                                        <input class="form-control mr-3" type="text" v-model="code" placeholder="Customer Code">
                                     </div>
                                     <div class="mb-3">
-                                        <input class="form-control mr-3" type="text" v-model="lastname" placeholder="Last Name">
+                                        <input class="form-control mr-3" type="text" placeholder="First Name or Last Name" v-model="name">
                                     </div>
                                     <div class="mb-3">
-                                        <input class="form-control mr-3" type="text" v-model="phonenumber" placeholder="Phone Number">
+                                        <input class="form-control mr-3" type="email" placeholder="Email Address" v-model="email">
+                                    </div>
+                                    <div class="mb-3">
+                                        <input class="form-control mr-3" type="text" placeholder="Phone Number" v-model="phone">
                                     </div>
                                     <div class="mb-3">
                                         <button class="btn btn-outline-success">Search</button>
@@ -138,35 +170,15 @@
                     <div class="col-md-8">
                         <div class="card" v-if="showsearch == true">
                             <div class="card-body table-responsive">
-                                <div>
-                                    <form @submit.prevent="searchCustomer">
-                                        <div class="row">
-                                            <div class="col-md-6">
-
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="d-flex">
-                                                    
-                                                    <input class="form-control mr-3" type="text" v-model="search" placeholder="Enter NIN or BVN or Fullname">
-
-                                                    <button class="btn btn-outline-success">Search</button>
-                                                </div>
-                                            </div>
-
-                                            
-                                        </div>
-                                    </form>
-                                </div><hr>
-                                <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                
+                                <table id="datatable1" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                     <thead>
                                     <tr>
-                                        <th>CUSTOMER CODE</th>
-                                        <th>CUSTOMER TYPE</th>
-                                        <th>CUSTOMER NAME</th>
-                                        <th>NATIONAL IDENTITY NUMBER</th>
-                                        <th>MOBILE NUMBER</th>
-                                        <th>STATE CODE</th>
-                                        <th>ACTION</th>
+                                        <th>Customer Number</th>
+                                        <th>Customer Name</th>
+                                        <!-- <th>Customer Type</th> -->
+                                        <th>Mobile Number</th>
+                                        <th>Action</th>
                                         <!-- <th>BALANCE</th> -->
                                     </tr>
                                     </thead>
@@ -178,18 +190,17 @@
                                     </tr>
                                     <tr v-for="cari in caris" :key="cari.id">
                                         <td>{{cari.customerCode}}</td>
-                                        <td v-if="cari.customerTYpe == 10">
+                                        
+                                        <td>{{cari.firstname}} {{cari.lastname}}</td>
+                                        <!-- <td v-if="cari.customerTYpe == 10">
                                             Individual
                                         </td>
                                         <td v-if="cari.customerTYpe == 11">
                                             Corporate
-                                        </td>
-                                        <td>{{cari.firstname}} {{cari.lastname}}</td>
-                                        <td>{{cari.nin}}</td>
+                                        </td> -->
                                         <td>{{cari.mobileNumber1}}, {{cari.mobileNumber2}}</td>
-                                        <td>{{cari.stateCode}}</td>
                                         <td>
-                                            <router-link :to="'/customer-details/'+cari.customerCode"><button class="btn btn-outline-success btn-sm mr-2">View Profile</button></router-link>
+                                            <router-link :to="'/customer-details/'+cari.customerCode"><button class="btn btn-outline-success btn-sm mr-2">View</button></router-link>
                                         </td>
                                     </tr>
                                     <!-- <tr class="text-center">
@@ -216,7 +227,7 @@
 
 
                                     <tbody>
-                                    <tr v-for="item in allcustomer" :key="item.id">
+                                    <tr v-for="item in caris" :key="item.id">
                                         <td>{{item.customerCode}}</td>
                                         <!-- <td v-if="item.customerTYpe == 10">
                                             Individual
@@ -227,7 +238,7 @@
                                         <td>{{item.firstname}} {{item.lastname}}</td>
                                         
                                         <td>
-                                            <button class="btn btn-outline-success btn-sm mr-2" data-toggle="modal" :data-target="'#bs-example-modal-lg-' + item.customerCode">View Details</button>
+                                            <router-link :to="'/customer-details/'+item.customerCode"><button class="btn btn-outline-success mr-2">View</button></router-link>
                                         </td>
                                         
                                         <div class="modal fade" :id="'bs-example-modal-lg-' + item.customerCode" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">

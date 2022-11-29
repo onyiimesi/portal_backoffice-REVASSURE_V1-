@@ -61,12 +61,20 @@ const router = createRouter({
       component: () => import('../views/SetupOrgView.vue')
     },
     {
-      path: '/list-organization',
+      path: '/list-organisation',
       name: 'listorganization',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/ListOrgView.vue')
+    },
+    {
+      path: '/view-organisation/:organisationCode',
+      name: 'vieworganization',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ViewOrgView.vue')
     },
     {
       path: '/edit-org/:organisationCode',
@@ -77,7 +85,7 @@ const router = createRouter({
       component: () => import('../views/EditOrgView.vue')
     },
     {
-      path: '/create-sub-organization',
+      path: '/create-unit',
       name: 'suborganizationsetup',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -85,7 +93,7 @@ const router = createRouter({
       component: () => import('../views/SetupSubOrgView.vue')
     },
     {
-      path: '/list-sub-organization',
+      path: '/list-unit',
       name: 'listsuborganization',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -93,7 +101,15 @@ const router = createRouter({
       component: () => import('../views/ListSubOrgView.vue')
     },
     {
-      path: '/edit-suborg/:subOrganisationCode',
+      path: '/view-unit/:subOrganisationCode',
+      name: 'viewunit',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ViewUnitView.vue')
+    },
+    {
+      path: '/edit-unit/:subOrganisationCode',
       name: 'editsuborg',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -115,6 +131,14 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/ViewUsersView.vue')
+    },
+    {
+      path: '/manage-users',
+      name: 'manageusers',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ManageUsersView.vue')
     },
     {
       path: '/edit-user/:id',
@@ -470,6 +494,22 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/InvoiceReportView.vue')
+    },
+    {
+      path: '/audit-log',
+      name: 'auditlog',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/AuditLogView.vue')
+    },
+    {
+      path: '/view-log/:id',
+      name: 'viewlog',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/ViewLogView.vue')
     },
   ]
 })

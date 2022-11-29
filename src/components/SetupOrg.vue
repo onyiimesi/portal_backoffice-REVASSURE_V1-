@@ -52,6 +52,9 @@
                     gender: '',
                     unit: '',
                 },
+
+                roles: '0',
+                roless: 'portal-admin',
             }
         }, 
 
@@ -68,6 +71,11 @@
         async mounted(){
 
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resultss = await axios.get('api/Users/profile',{
                 headers: {
@@ -133,36 +141,8 @@
                     toast.error("Lastname required.");
                 }
 
-                if (!this.emailAddress) {
-                    toast.error("Administrator Email Address required.");
-                }else{
-
-                    const response = await axios.post('api/Organisation/addorganization', {
-                    organisationCode: this.org.organisationCode,
-                    organisationName: this.org.organisationName,
-                    parentOrganizationCode: this.org.parentOrganizationCode,
-                    officeAddress: this.org.officeAddress,
-                    emailAddress: this.org.emailAddress,
-                    website: this.org.website,
-                    phoneNumber: this.org.phoneNumber,
-                        
-                    }, {
-                    headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem('token')
-                        }
-                    },);
-
-                    await axios.post('api/SubOrganisation/addsuborganization', {
-                        subOrganisationCode: "SUB"+this.org.organisationCode,
-                        subOrganisationName: "SUB "+this.org.organisationName,
-                        organisationCode: this.org.organisationCode
-                        
-                    }, {
-                    headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem('token')
-                        }
-                    },);
-
+                
+                else{
                     await axios.post('api/Users/adduser', {
                         emailAddress: this.emailAddress,
                         subOrganisationCode: "SUB"+this.org.organisationCode,
@@ -179,43 +159,79 @@
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem('token')
                         }
-                    },);
-                    
+                    },).then(response => { 
+                        
+                    })
+                    .catch(error => {
+                        this.eee = error.response.data.errors;
+                        toast.error(this.eee.EmailAddress[0])
+                        toast.error(this.eee.FirstName[0])
+                        toast.error(this.eee.LastName[0])
+                        toast.error(this.eee.OrganizationCode[0])
+                    });
 
-                    if (response) {
-                        // console.log(response);
-                        toast.success(response.data.message);
+                    await axios.post('api/SubOrganisation/addsuborganization', {
+                        subOrganisationCode: "SUB"+this.org.organisationCode,
+                        subOrganisationName: "SUB "+this.org.organisationName,
+                        organisationCode: this.org.organisationCode
+                        
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },).then(response => { 
+                        
+                    })
+                    .catch(error => {
+                        this.eee = error.response.data.errors;
+                        toast.error(this.eee.OrganizationCode[0])
+                    });
 
-                        this.org.organisationCode = "";
-                        this.org.organisationName = "";
-                        this.org.parentOrganizationCode = "";
-                        this.org.officeAddress = "";
-                        this.org.emailAddress = "";
-                        this.org.website = "";
-                        this.org.phoneNumber = "";
+                    const response = await axios.post('api/Organisation/addorganization', {
+                    organisationCode: this.org.organisationCode,
+                    organisationName: this.org.organisationName,
+                    parentOrganizationCode: this.org.parentOrganizationCode,
+                    officeAddress: this.org.officeAddress,
+                    emailAddress: this.org.emailAddress,
+                    website: this.org.website,
+                    phoneNumber: this.org.phoneNumber,
+                        
+                    }, {
+                    headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem('token')
+                        }
+                    },).then(response => { 
+                            toast.success(response.data.message);
+                            this.$router.push("/list-organization");
 
-                        this.suborg.subOrganisationCode = "";
-                        this.suborg.subOrganisationName = "";
-                        this.suborg.organisationCode = "";
+                            this.org.organisationCode = "";
+                            this.org.organisationName = "";
+                            this.org.parentOrganizationCode = "";
+                            this.org.officeAddress = "";
+                            this.org.emailAddress = "";
+                            this.org.website = "";
+                            this.org.phoneNumber = "";
 
-                        this.emailAddress = "";
-                        this.organizationCode = "";
-                        this.subOrganisationCode = "";
-                        this.firstName = "";
-                        this.lastName = "";
-                        this.password = "";
-                        this.confirmPassword = "";
-                        this.role = "";
-                    }else{
-                        toast.error("Incorrect Parameter");
+                            this.suborg.subOrganisationCode = "";
+                            this.suborg.subOrganisationName = "";
+                            this.suborg.organisationCode = "";
+
+                            this.emailAddress = "";
+                            this.organizationCode = "";
+                            this.subOrganisationCode = "";
+                            this.firstName = "";
+                            this.lastName = "";
+                            this.password = "";
+                            this.confirmPassword = "";
+                            this.role = "";
+                        })
+                        .catch(error => {
+                            this.eee = error.response.data.errors;
+                            toast.error(this.eee.OrganisationCode[0])
+                            toast.error(this.eee.OrganisationName[0])
+                            toast.error(this.eee.ParentOrganizationCode[0])
+                        });
                     }
-
-                }
-                
-
-                
-
-                
             }
         }
     }
@@ -277,7 +293,7 @@
                                             <div class="form-group">
                                                 <label class="control-label">Parent Organization <span class="text-danger">*</span></label>
                                                 <select v-model="org.parentOrganizationCode" class="form-control">
-                                                    <option v-for="org in allorg" :value="org.organisationCode">{{org.organisationCode}}</option>
+                                                    <option v-for="org in allorg" :value="org.organisationCode">{{org.organisationName}}</option>
                                                     
                                                 </select>
                                             </div>
@@ -354,7 +370,9 @@
                                         </div>
 
                                     </div>
-                                    <button class="btn btn-outline-success mt-4 float-left">Create</button>
+                                    <button class="btn btn-outline-success mt-4 float-left mr-3">Create</button>
+
+                                    
                                 </form>
 
                             </div>

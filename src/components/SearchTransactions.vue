@@ -2,38 +2,46 @@
     import axios from "axios"
     
     export default{
-      name: 'Nav',
-      name: 'dashboard',
-      name: 'autologout',
+        name: 'Nav',
+        name: 'dashboard',
+        name: 'autologout',
   
-      data: function(){
-          return{
+        data: function(){
+            return{
 
-            customerDetails: {
+                customerDetails: {
 
-                emailAddress: '',
-                subOrganisationCode: '',
-                organizationCode: '',
-                firstName: '',
-                lastName: '',
-                middleName: '',
-                gender: '',
-                unit: '',
-            },
-          }
-      },
-  
-      async mounted(){
-        this.role = localStorage.getItem('role');
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
 
-        const result = await axios.get('api/Users/profile',{
-            headers: {
-                Authorization: 'Bearer ' + localStorage.getItem('token')
+                roles: 'billing-oficer',
+                roless: 'revenue-officer',
             }
-        });
-        this.customerDetails = result.data.result;
+        },
   
-      },
+        async mounted(){
+            this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role && this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
+
+            const result = await axios.get('api/Users/profile',{
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            this.customerDetails = result.data.result;
+
+        },
   
   
     }

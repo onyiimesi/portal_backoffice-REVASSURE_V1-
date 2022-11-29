@@ -42,6 +42,8 @@
                     gender: '',
                     unit: '',
                 },
+
+                role: 'org-admin',
             }
         }, 
 
@@ -58,6 +60,11 @@
         async mounted(){
 
             this.roles = localStorage.getItem('role');
+
+            if(this.role != this.roles){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resul = await axios.get('api/Users/profile', {
                 headers: {
@@ -115,7 +122,7 @@
                 }
 
                 if (!this.subOrganisationCode) {
-                    toast.error("Sub-Organisation Code required.");
+                    toast.error("Unit required.");
                 }
 
                 if (!this.firstName) {
@@ -159,6 +166,7 @@
                     if (response) {
                         // console.log(response);
                         toast.success(response.data.message);
+                        this.$router.push("/view-users");
 
                         this.emailAddress = "";
                         this.subOrganisationCode = "";
@@ -229,10 +237,10 @@
                                     <strong v-for="msg in message">{{ msg }}</strong>
                                 </div>
                                 <form @submit.prevent="handleUser">
-                                    <div class="row">
-                                        <div class="col-md-3">
+                                    <div class="row pl-4 pr-4 pt-3 pb-3">
+                                        <div class="col-md-12 mb-3">
                                             <div class="form-group">
-                                                <label class="control-label">Sub-Organization <span class="text-danger">*</span></label>
+                                                <label class="control-label">Unit <span class="text-danger">*</span></label>
                                                 <select v-model="subOrganisationCode" class="form-control" id="">
 
                                                     <option v-for="sub in allsuborg" :value="sub.subOrganisationCode">{{sub.subOrganisationName}}</option>
@@ -240,35 +248,35 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-4 mb-3">
                                             <div class="form-group">
                                                 <label class="control-label">First Name <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="firstName" autocomplete="nope">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-4 mb-3">
                                             <div class="form-group">
                                                 <label class="control-label">Middle Name (optional)</label>
                                                 <input class="form-control" type="text" v-model="middleName" autocomplete="nope">
                                             </div>
                                         </div>
                                     
-                                        <div class="col-md-3">
+                                        <div class="col-md-4 mb-3">
                                             <div class="form-group">
                                                 <label class="control-label">Last Name <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="lastName" autocomplete="nope">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-4 mb-3">
                                             <div class="form-group">
                                                 <label class="control-label">Email Address <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" v-model="emailAddress" autocomplete="nope">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-4 mb-3">
                                             <div class="form-group">
                                                 <label class="control-label">Gender <span class="text-danger">*</span></label>
                                                 <select v-model="gender" class="form-control" id="">
@@ -279,7 +287,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-4 mb-3">
                                             <div class="form-group">
                                                 <label class="control-label">Role <span class="text-danger">*</span></label>
                                                 
@@ -290,14 +298,14 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label class="control-label">Password <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="password" v-model="password" autocomplete="nope">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label class="control-label">Confirm Password <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="password" v-model="confirmPassword" autocomplete="nope">
@@ -336,7 +344,7 @@
                                         </div> -->
 
                                     </div>
-                                    <button class="btn btn-outline-success mt-4">Create User</button> 
+                                    <button class="btn btn-outline-success ml-4">Create User</button> 
                                 </form>
                                 <!-- <button class="btn btn-primary float-left">Cancel</button> -->
 

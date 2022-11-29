@@ -40,13 +40,18 @@
                     gender: '',
                     unit: '',
                 },
-                
+                roles: 'billing-oficer',
             }
         }, 
 
         async mounted(){
 
             this.role = localStorage.getItem('role');
+
+            if(this.roles != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const resu = await axios.get('api/Users/profile', {
                 headers: {
@@ -166,7 +171,7 @@
                   
                   <div class="row">
                     <div class="col-lg-12">
-                        <div class="card">
+                        <div class="card pt-3 pb-3 pl-3 pr-3">
                             <div class="card-body">
                                 
                                 <div class="alert alert-danger" v-if="errors.length">
@@ -249,14 +254,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label class="control-label">Contact Address</label>
-                                                <textarea class="form-control" v-model="details.contactAddress" cols="30" rows="5"></textarea>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="control-label">State</label>
                                                 <!-- <input class="form-control" type="text" v-model="details.stateCode"> -->
@@ -268,7 +266,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="control-label">LGA</label>
                                                 <!-- <input class="form-control" type="text" v-model="details.lgaCode"> -->
@@ -278,6 +276,13 @@
                                                     <option v-for="sub in alllga" :value="sub.lgaCode">{{sub.lgaName}}</option>
                                                     
                                                 </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label">Contact Address</label>
+                                                <textarea class="form-control" v-model="details.contactAddress" cols="30" rows="5"></textarea>
                                             </div>
                                         </div>
                                     </div>

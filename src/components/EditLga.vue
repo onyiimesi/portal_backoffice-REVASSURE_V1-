@@ -10,15 +10,38 @@
                 errors: [],
                 message: [],
 
+                customerDetails: {
+
+                    emailAddress: '',
+                    subOrganisationCode: '',
+                    organizationCode: '',
+                    firstName: '',
+                    lastName: '',
+                    middleName: '',
+                    gender: '',
+                    unit: '',
+                },
+
+                role: '',
+
                lga:{
-                id: '',
-                lgaName: '', 
-               }
+                    id: '',
+                    lgaName: '', 
+               },
+
+               roless: 'revenue-officer',
 
             }
         },
 
         async mounted(){
+
+            this.role = localStorage.getItem('role');
+
+            if(this.roless != this.role){
+                localStorage.removeItem('token');
+                this.$router.push('/');
+            }
 
             const result = await axios.get('api/Lga/lga/'+this.$route.params.lgaCode, {
                 headers: {
