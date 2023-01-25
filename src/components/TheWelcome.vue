@@ -5,9 +5,6 @@
   import axios from "axios"
   
   export default{
-    name: 'Nav',
-    name: 'dashboard',
-    name: 'autologout',
 
     data: function(){
         return{
@@ -64,7 +61,7 @@
         this.customerCount = cuscount.data.result;
     },
 
-    destroyed(){
+    unmounted(){
         this.events.forEach(function (event){
             window.removeEventListener(event, this.resetTimer)
         }, this);

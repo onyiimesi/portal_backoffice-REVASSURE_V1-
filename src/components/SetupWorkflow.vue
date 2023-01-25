@@ -1,9 +1,10 @@
+
 <script>
     import axios from "axios"
     import { useToast } from "vue-toastification";
 
     export default{
-        name: 'setupworkflow',
+        name: 'setup-workflow',
         
         data(){
             return{
@@ -17,6 +18,8 @@
                 action: '',
                 module: '',
                 description: '',
+                initiatorRole: '',
+                totalApprovals: '',
 
                 customerDetails: {
                     id: '',
@@ -91,6 +94,8 @@
                         module: this.module,
                         organizationCode: this.customerDetails.organizationCode,
                         description: this.description,
+                        initiatorRole: this.initiatorRole,
+                        totalApprovals: this.totalApprovals,
                         
                     }, {
                     headers: {
@@ -105,6 +110,8 @@
                         this.action = "";
                         this.module = "";
                         this.description = "";
+                        this.initiatorRole = "";
+                        this.totalApprovals = "";
 
                     }else{
                         toast.error("Incorrect Parameter");
@@ -162,7 +169,7 @@
                                             <div class="form-group">
                                                 <label class="control-label">Module</label>
                                                 <select @change="getActions($event)" v-model="module" class="form-control select2">
-                                                    <option v-for="act in actions" :value="act.modCode">{{act.modName}}</option>
+                                                    <option v-for="act in actions" :value="act.modCode" :key="act.modCode">{{act.modName}}</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -171,8 +178,22 @@
                                             <div class="form-group">
                                                 <label class="control-label">Item</label>
                                                 <select v-model="action" class="form-control select2">
-                                                    <option v-for="act in moduleactions" :value="act.actionCode">{{act.actionName}}</option>
+                                                    <option v-for="act in moduleactions" :value="act.actionCode" :key="act.actionCode">{{act.actionName}}</option>
                                                 </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label">Initiator</label>
+                                                <input type="text" class="form-control" v-model="initiatorRole">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label">Total Approval</label>
+                                                <input type="text" class="form-control" v-model="totalApprovals">
                                             </div>
                                         </div>
 
@@ -212,7 +233,7 @@
                                     </thead>
 
                                     <tbody>
-                                    <tr v-for="act in workflow">
+                                    <tr v-for="act in workflow" :key="act.workFlowItemAction">
                                         <td>{{act.workFlowItemAction}}</td>
                                         <td>{{act.workFlowItemDescription}}</td>
                                         <td>

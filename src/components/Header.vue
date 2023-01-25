@@ -1,11 +1,9 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 
   import { mapGetters } from 'vuex';
   
   export default{
-    name: 'Nav',
-    name: 'dashboard',
-    name: 'autologout',
 
     data(){
         return{
@@ -396,7 +394,7 @@
                         </div>
                     </li>
 
-                    <!-- <li class="nav-item dropdown" v-if="role === 'org-admin' || role === 'revenue-officer'" >
+                    <li class="nav-item dropdown" v-if="role === 'org-admin' || role === 'revenue-officer'" >
                         <a class="nav-link dropdown-toggle arrow-none text-white txt-white" href="#" id="topnav-uielement" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="ri-pencil-ruler-2-line mr-2"></i>Workflow <div class="arrow-down"></div>
@@ -417,7 +415,7 @@
                             </div>
 
                         </div>
-                    </li> -->
+                    </li>
 
                     <li class="nav-item">
                         <a href="javascript:void(0)" @click="handleClick" class="nav-link text-white txt-white">
